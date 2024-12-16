@@ -13,6 +13,17 @@ export default {
       fontFamily: {
         sans: ['Figtree', ...defaultTheme.fontFamily.sans],
       },
+      backgroundImage: {
+        'login-img': "url('/images/login-bg.png')",
+        'register-img': "url('/images/register-bg.png')",
+      },
+      colors: {
+        primary: '#013EA6',
+        secondary: '#1284A3'
+      },
+      borderRadius: {
+        'xl': '20px'
+      }
     },
   },
 

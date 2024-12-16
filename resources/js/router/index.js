@@ -21,11 +21,19 @@ const router = createRouter({
     {
       path: '/',
       component: Authenticated,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, isVerified: true },
       children: [
         { path: "/", name: 'Home', component: Home },
         { path: "/user", name: 'User', component: User },
         { path: "/confirm-password", name: 'ConfirmPassword', component: ConfirmPassword },
+      ]
+    },
+    {
+      path: '/',
+      component: Authenticated,
+      meta: { requiresAuth: true, isVerified: false },
+      children: [
+        { path: "/verify-email", name: 'VerifyEmail', component: VerifyEmail },
       ]
     },
     {
@@ -36,7 +44,6 @@ const router = createRouter({
       children: [
         { path: "/register", name: 'Register', component: Register },
         { path: "/login", name: 'Login', component: Login },
-        { path: "/verify-email", name: 'VerifyEmail', component: VerifyEmail },
         { path: "/two-factor-challenge", name: 'TwoFactorChallenge', component: TwoFactorChallenge },
         { path: "/forgot-password", name: 'ForgotPassword', component: ForgotPassword },
         { path: "/reset-password/:token", name: 'ResetPassword', component: ResetPassword }
@@ -55,6 +62,10 @@ router.beforeEach((to, from, next) => {
 
   if (to.meta.requiresAuth && !authStore.currentUser) {
     next({ name: "Login" })
+  } else if (to.meta.isVerified && !authStore.currentUser.email_verified_at) {
+      next({ name: "VerifyEmail" })
+  } else if (!to.meta.isVerified && authStore.currentUser && authStore.currentUser.email_verified_at) {
+    next({ name: "Home" })
   } else if (to.meta.isGuest && authStore.currentUser) {
     next({ name: "Home" })
   } else {

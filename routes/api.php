@@ -10,7 +10,20 @@ Route::get('/user', function (Request $request) {
 
 Route::prefix('v1')
     ->namespace('\App\Http\Controllers\Api\V1')
-    ->middleware(['auth:sanctum', 'verified'])
     ->group(function () {
-        Route::get('/me', MeController::class);
+        Route::middleware(['auth:sanctum', 'verified'])
+            ->group(function () {
+                Route::get('/me', MeController::class);
+            });
+        
+        Route::prefix('business')
+            ->group(function () {
+                Route::get('/types', 'BusinessDetailsController@businessTypes');
+                Route::get('/features/{id?}', 'BusinessDetailsController@businessFeatures');
+            });
+
+        Route::prefix('address')
+            ->group(function () {
+                Route::post('/states', 'AddressController@getStates');
+            });
     });

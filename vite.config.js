@@ -11,13 +11,22 @@ export default defineConfig({
   build: {
     sourcemap: true,
   },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://countriesnow.space/api/v0.1',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''), // Removes '/api' from the path before forwarding
+      },
+    },
+  },
   plugins: [
     laravel({
       input: [
         'resources/js/app.js'
       ],
       refresh: true,
-      // detectTls: 'vue-laravel-spa.test',
+      // detectTls: 'hostname.test',
     }),
     vue({
       template: {

@@ -24,6 +24,7 @@ Route::prefix('v1')
 
         Route::prefix('address')
             ->group(function () {
-                Route::post('/states', 'AddressController@getStates');
+                Route::get('/countries', 'AddressController@getCountries');
+                Route::get('/states', 'AddressController@getStates');
             });
     });

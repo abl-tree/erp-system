@@ -19,10 +19,13 @@ export default {
       },
       colors: {
         primary: '#013EA6',
-        secondary: '#1284A3'
+        secondary: '#1284A3',
+        'secondary-600': '#0F6B8B',
+        accent: '#001F54'
       },
       borderRadius: {
-        'xl': '20px'
+        'xl': '15px',
+        '2xl': '20px'
       }
     },
   },

@@ -1,8 +1,12 @@
 <template>
   <div class="w-full min-h-lvh grid grid-cols-2">
     <!-- Half Layout (Two Equal Columns) -->
-    <div class="bg-primary">
-      <div class="bg-login-img bg-no-repeat bg-cover bg-center opacity-10 min-h-screen"></div>
+    <div class="bg-primary relative">
+      <div class="absolute inset-0 bg-login-img bg-no-repeat bg-cover bg-center opacity-10 min-h-screen"></div>
+      <div class="relative text-white h-full w-full flex flex-col justify-center items-center">
+        <div class="text-2xl">Header Something</div>
+        <div class="px-28 py-5 text-center">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vitae massa neque. Aenean dapibus posuere augue, gravida lobortis libero vulputate at. Donec et orci vel turpis luctus malesuada ac ut nisl. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut lobortis elit dui, id mollis mauris tincidunt consequat. Nam fringilla suscipit varius.</div>
+      </div>
     </div>
     <div></div>
 
@@ -10,7 +14,7 @@
     <div class="absolute left-1/2 top-0 transform -translate-x-1/2 container min-h-screen h-full">
       <div class="grid grid-cols-2 h-full">
         <div >
-        
+
         </div>
         <div class="flex flex-col p-5">
           <div class="flex-none flex flex-row justify-end">
@@ -28,7 +32,7 @@
                   </label> -->
                   <input v-model="data.email"
                     class="p-2 rounded-xl shadow-sm bg-white border border-gray-300 text-gray-400 block mt-1 w-full" id="email"
-                    type="email" name="email" required="required" autofocus="autofocus">
+                    type="email" name="email" placeholder="Username / Email" required="required" autofocus="autofocus">
                 </div>
                 <div class="mt-4">
                   <!-- <label class="block font-medium text-sm text-gray-500" for="password">
@@ -36,7 +40,7 @@
                   </label> -->
                   <input v-model="data.password"
                     class="p-2 rounded-xl shadow-sm bg-white border border-gray-300 text-gray-400 focus:border-green-500 focus:ring focus:ring-green-500 focus:ring-opacity-50 block mt-1 w-full"
-                    id="password" type="password" name="password" required="required" autocomplete="current-password">
+                    id="password" type="password" name="password" placeholder="Password" required="required" autocomplete="current-password">
                 </div>
                 <div v-if="errors" class="text-red-500 py-2 font-semibold">
                   <span>{{ errors.message }}</span>

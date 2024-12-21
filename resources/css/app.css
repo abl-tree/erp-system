@@ -1,3 +1,37 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: #0000005C;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: #0000007b;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+#app {
+  flex: 1;
+}
+
+.custom-invalid {
+  @apply border-red-700 bg-red-700/15 placeholder-red-500;
+}
+
+.btn-secondary-transparent {
+  @apply hover:bg-secondary active:bg-secondary-600 cursor-pointer hover:text-white rounded-2xl;
+}

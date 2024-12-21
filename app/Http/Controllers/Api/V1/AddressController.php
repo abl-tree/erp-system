@@ -3,29 +3,51 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\Country;
+use App\Models\State;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 class AddressController extends Controller
 {
+    public function getCountries(Request $request)
+    {
+        $cacheKey = "countries";
+        $data = Cache::get($cacheKey);
+
+        if (!$data) {
+            // Fetch countries (or any other data you want to cache)
+            $countries = Country::all();
+    
+            // Store the data in the cache without expiration
+            Cache::forever($cacheKey, $countries);
+    
+            // Return the newly fetched data
+            $data = $countries;
+        }
+
+        return response()->json([
+            'countries' => $data,
+        ]);
+    }
+
     public function getStates(Request $request)
     {
-        // Get the country name from the request body
-        $country = $request->input('country');
-        
-        // Make a request to the external CountriesNow API
-        try {
-            $response = Http::withHeaders([
-                'Content-Type' => 'application/json',  // Make sure we send JSON data
-                'Accept' => 'application/json',        // Optionally set the accept header
-            ])->post('https://countriesnow.space/api/v0.1/countries/states', [
-                'country' => $country
-            ]);
-            
-            // Return the response from CountriesNow API to the frontend
-            return response()->json($response->json());
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Something went wrong'], 500);
+        $iso2 = $request->input('iso2');
+        $cacheKey = "states-$iso2";
+        $data = Cache::get($cacheKey);
+
+        if (!$data) {
+            $states = Country::getByIso2($iso2)->states()->orderBy('name')->get();
+
+            Cache::forever($cacheKey, $states);
+
+            $data = $states;
         }
+
+        return response()->json([
+            'states' => $data,
+        ]);
     }
 }

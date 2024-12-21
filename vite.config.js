@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
+import svgLoader from 'vite-svg-loader';
 
 export default defineConfig({
   resolve: {
@@ -12,13 +13,6 @@ export default defineConfig({
     sourcemap: true,
   },
   server: {
-    proxy: {
-      '/api': {
-        target: 'https://countriesnow.space/api/v0.1',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''), // Removes '/api' from the path before forwarding
-      },
-    },
   },
   plugins: [
     laravel({
@@ -46,5 +40,6 @@ export default defineConfig({
         },
       },
     }),
+    svgLoader()
   ],
 });

@@ -14,6 +14,8 @@ import Authenticated from '@/layouts/Authenticated.vue'
 import ConfirmPassword from '@/pages/auth/ConfirmPassword.vue'
 import Home from '@/pages/Home.vue'
 import User from '@/pages/User.vue'
+import BusinessRegistration from '@/pages/BusinessRegistration.vue'
+import UserManagement from '@/pages/UserManagement.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -25,13 +27,14 @@ const router = createRouter({
       children: [
         { path: "/", name: 'Home', component: Home },
         { path: "/user", name: 'User', component: User },
+        { path: "/user-management", name: 'UserManagement', component: UserManagement },
         { path: "/confirm-password", name: 'ConfirmPassword', component: ConfirmPassword },
       ]
     },
     {
       path: '/',
       component: Authenticated,
-      meta: { requiresAuth: true, isVerified: false },
+      // meta: { requiresAuth: true, isVerified: false },
       children: [
         { path: "/verify-email", name: 'VerifyEmail', component: VerifyEmail },
       ]
@@ -46,7 +49,8 @@ const router = createRouter({
         { path: "/login", name: 'Login', component: Login },
         { path: "/two-factor-challenge", name: 'TwoFactorChallenge', component: TwoFactorChallenge },
         { path: "/forgot-password", name: 'ForgotPassword', component: ForgotPassword },
-        { path: "/reset-password/:token", name: 'ResetPassword', component: ResetPassword }
+        { path: "/reset-password/:token", name: 'ResetPassword', component: ResetPassword },
+        { path: "/business-registration", name: 'BusinessRegistration', component: BusinessRegistration }
       ]
     },
     {

@@ -26,23 +26,34 @@
             </div>
             <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden rounded-lg">
               <form @submit.prevent="login">
-                <div>
-                  <!-- <label class="block font-medium text-sm text-gray-500" for="email">
-                    Email
-                  </label> -->
-                  <input v-model="data.email"
-                    class="p-2 rounded-xl shadow-sm bg-white border border-gray-300 text-gray-400 block mt-1 w-full" id="email"
-                    type="email" name="email" placeholder="Username / Email" required="required" autofocus="autofocus">
+                <div class="relative">
+                  <Input v-model="data.email"
+                    class="p-2 block mt-1 w-full error"
+                    :class="{ 'custom-invalid': errors && errors.email }"
+                    id="email"
+                    type="email" name="email" placeholder="Username / Email" />
+                  <div class="flex flex-row gap-1 absolute top-0 right-0 mt-3 mr-3">
+                    <ExclamationTriangleIcon v-if="errors && errors.email" class="size-5 text-red-700" />
+                  </div>
+                  <div v-if="errors && errors.email">
+                    <span v-for="error in errors.email" class="text-red-500 text-xs">{{ error }}</span>
+                  </div>
                 </div>
-                <div class="mt-4">
-                  <!-- <label class="block font-medium text-sm text-gray-500" for="password">
-                    Password
-                  </label> -->
-                  <input v-model="data.password"
-                    class="p-2 rounded-xl shadow-sm bg-white border border-gray-300 text-gray-400 focus:border-green-500 focus:ring focus:ring-green-500 focus:ring-opacity-50 block mt-1 w-full"
-                    id="password" type="password" name="password" placeholder="Password" required="required" autocomplete="current-password">
+                <div class="mt-4 relative">
+                  <Input v-model="data.password"
+                    class="p-2 block mt-1 w-full"
+                    :class="{ 'custom-invalid': errors && errors.password }"
+                    id="password" type="password" name="password" placeholder="Password" />
+                  <div v-if="errors && errors.password">
+                    <span v-for="error in errors.password" class="text-red-500 text-xs">{{ error }}</span>
+                  </div>
+                  <div class="flex flex-row gap-1 absolute top-0 right-0 mt-3 mr-3">
+                    <ExclamationTriangleIcon v-if="errors && errors.password" class="size-5 text-red-700" />
+                    <EyeIcon v-if="show_password" @click="togglePassword(false)" class="size-5 cursor-pointer" />
+                    <EyeSlashIcon v-else @click="togglePassword(true)" class="size-5 cursor-pointer" />
+                  </div>
                 </div>
-                <div v-if="errors" class="text-red-500 py-2 font-semibold">
+                <div v-if="errors && errors.message" class="text-red-500 py-2 font-semibold">
                   <span>{{ errors.message }}</span>
                 </div>
                 <div class="block mt-4">
@@ -53,7 +64,7 @@
                         name="remember">
                       <span class="ml-2 text-sm text-gray-500">Keep me logged in</span>
                     </label>
-                    <router-link class="underline text-sm text-gray-500 hover:text-gray-200" :to="{ name: 'ForgotPassword' }">
+                    <router-link class="underline text-sm text-blue-700 hover:text-blue-500" :to="{ name: 'ForgotPassword' }">
                       Forgot your password?
                     </router-link>
                   </div>
@@ -68,7 +79,7 @@
             </div>
             <div class="text-center text-sm mt-4">
               Don't have an account yet?
-              <router-link class="underline text-gray-500 hover:text-gray-200" :to="{ name: 'Register' }">
+              <router-link class="underline text-blue-700 hover:text-blue-500 font-bold" :to="{ name: 'Register' }">
                 Sign up
               </router-link>
             </div>
@@ -83,6 +94,9 @@
 import Logo from '@/components/Logo.vue'
 import { useAuthStore } from '@/stores/auth.js'
 import { mapActions } from 'pinia'
+import { EyeSlashIcon, EyeIcon } from '@heroicons/vue/24/outline'
+import { ExclamationTriangleIcon } from '@heroicons/vue/24/solid'
+import Input from '@/components/Input.vue'
 
 export default {
   data: () => {
@@ -93,15 +107,23 @@ export default {
         password: null,
         remember: null,
       },
+      show_password: false
     }
   },
   components: {
     Logo,
+    ExclamationTriangleIcon,
+    EyeSlashIcon,
+    EyeIcon,
+    Input
   },
   methods: {
     ...mapActions(useAuthStore, ['attempt_user', 'set_user']),
     login() {
       this.errors = null
+
+      console.log('data', this.data);
+      
 
       axios.get('/sanctum/csrf-cookie').then(response => {
         axios.post('/login', this.data)
@@ -122,10 +144,19 @@ export default {
               })
           })
           .catch((error) => {
-            this.errors = error
+            this.errors = error.response.data.errors
           })
       });
     },
+    togglePassword(toggle = false) {
+      this.show_password = toggle
+
+      if (toggle) {
+        document.getElementById('password').type = 'text'
+      } else {
+        document.getElementById('password').type = 'password'
+      }
+    }
   },
 }
 </script>

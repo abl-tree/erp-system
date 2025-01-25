@@ -14,18 +14,59 @@ class BusinessTypeSeeder extends Seeder
     public function run(): void
     {
         BusinessType::create([
-            'name' => 'Restaurant',
-            'slug' => 'Restaurant'
+            'name' => 'Cleaning Business'
         ]);
 
         BusinessType::create([
-            'name' => 'Hotel',
-            'slug' => 'Hotel'
+            'name' => 'Landscaping'
         ]);
 
         BusinessType::create([
-            'name' => 'Cafe',
-            'slug' => 'Cafe'
+            'name' => 'Janitorial'
+        ]);
+
+        BusinessType::create([
+            'name' => 'Repairmen'
+        ]);
+
+        BusinessType::create([
+            'name' => 'Moving Company'
+        ]);
+
+        BusinessType::create([
+            'name' => 'Property Managers'
+        ]);
+
+        BusinessType::create([
+            'name' => 'Tour Guide'
+        ]);
+
+        BusinessType::create([
+            'name' => 'Photography'
+        ]);
+
+        BusinessType::create([
+            'name' => 'Event Coordinators'
+        ]);
+
+        BusinessType::create([
+            'name' => 'Cleaning Business'
+        ]);
+
+        BusinessType::create([
+            'name' => 'Shipping/Freight'
+        ]);
+
+        BusinessType::create([
+            'name' => 'Beauty Salons'
+        ]);
+
+        BusinessType::create([
+            'name' => 'Financial Services'
+        ]);
+
+        BusinessType::create([
+            'name' => 'Legal services'
         ]);
     }
 }

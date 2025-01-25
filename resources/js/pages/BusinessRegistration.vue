@@ -11,7 +11,7 @@
             <div class="flex-1 flex flex-col gap-3">
                 <div class="text-accent text-xl font-medium">Business Type</div>
                 <div>1. Please select yout type of business.</div>
-                <div class="w-full bg-white flex flex-wrap border border-gray-300 rounded-xl">
+                <div :class="{'border-red-500' : errors && errors.business_type}" class="w-full bg-white flex flex-wrap border border-gray-300 rounded-xl">
                     <div class="flex-none w-full border-b border-gray-300 rounded-t-md px-8 py-6">
                         <div class="flex flex-row items-center gap-3">
                             <MagnifyingGlassIcon  class="size-5 text-gray-400" />
@@ -21,49 +21,52 @@
                     <div class="flex-1 w-1/2 border-r border-gray-300 flex flex-col p-8 gap-5">
                         <div v-for="(option, key) in businessTypeOptions.slice(0, 7)" :key="key">
                             <input
-                                :id="'option' + option.value"
+                                :id="'option' + option.id"
+                                :key="option.id"
                                 class="peer hidden"
                                 type="radio"
                                 name="business_type"
-                                :value="option.value"
-                                v-model="selectedType"
+                                :value="option.id"
+                                v-model="data.business_type"
                             />
-                            <label :for="'option' + option.value" class="flex flex-row items-center justify-center gap-2 btn-secondary-transparent peer-checked:bg-secondary peer-checked:text-white py-2 px-5 w-fit">
+                            <label :for="'option' + option.id" class="flex flex-row items-center justify-center gap-2 btn-secondary-transparent peer-checked:bg-secondary peer-checked:text-white py-2 px-5 w-fit">
                                 <component :is="option.icon" class="w-4 h-4 flex-none" />
-                                <span class="flex-1">{{ option.label }}</span>
+                                <span class="flex-1">{{ option.name }}</span>
                             </label>
                         </div>
                     </div>
                     <div class="flex-1 w-1/2 flex flex-col p-8 gap-5">
                         <div v-for="(option, key) in businessTypeOptions.slice(7)" :key="key">
                             <input
-                                :id="'option' + option.value"
+                                :id="'option' + option.id"
+                                :key="option.id"
                                 class="peer hidden"
                                 type="radio"
                                 name="business_type"
-                                :value="option.value"
-                                v-model="selectedType"
+                                :value="option.id"
+                                v-model="data.business_type"
                             />
-                            <label :for="'option' + option.value" class="flex flex-row items-center justify-center gap-2 btn-secondary-transparent peer-checked:bg-secondary peer-checked:text-white py-2 px-5 w-fit">
+                            <label :for="'option' + option.id" class="flex flex-row items-center justify-center gap-2 btn-secondary-transparent peer-checked:bg-secondary peer-checked:text-white py-2 px-5 w-fit">
                                 <component :is="option.icon" class="w-4 h-4 flex-none" />
-                                <span class="flex-1">{{ option.label }}</span>
+                                <span class="flex-1">{{ option.name }}</span>
                             </label>
                         </div>
                     </div>
                 </div>
+                <span v-if="errors && errors.business_type" v-for="error in errors.business_type" class="text-xs text-red-500">{{ error }}</span>
             </div>
             <div class="flex-1 flex flex-col gap-3">
                 <div class="flex-none h-[28px]"></div>
                 <div>2. Choose the job roles in your company.</div>
-                <div class="flex-grow w-full bg-white flex flex-col border border-gray-300 rounded-xl">
+                <div :class="{'border-red-500' : errors && errors.job_roles}" class="flex-grow w-full bg-white flex flex-col border border-gray-300 rounded-xl">
                     <div class="flex-none w-full border-b border-gray-300 px-8 py-6">
                         <div class="flex flex-wrap items-center gap-2">
                             <div class="flex flex-wrap items-center gap-3">
                                 <MagnifyingGlassIcon  class="size-5 text-gray-400" />
                                 <input name="business_type" type="text" placeholder="Search..." />
                             </div>
-                            <span v-for="(jobRole, key) in selectedJobRoles" class="flex flex-row px-5 py-2 rounded-xl text-accent font-medium text-sm bg-secondary bg-opacity-40 gap-2 items-center">
-                                {{ jobRole.name }}
+                            <span v-for="(feature, key) in selectedJobRoles" class="flex flex-row px-5 py-2 rounded-xl text-accent font-medium text-sm bg-secondary bg-opacity-40 gap-2 items-center">
+                                {{ feature.name }}
                                 <button type="button" aria-label="Remove Job Role" title="Remove Job Role">
                                     <XMarkIcon class="size-3" />
                                 </button>
@@ -77,7 +80,7 @@
                                 {{ jobRole.name }}
                                 </div>
                                 <div class="flex-none flex flex-row gap-5 items-center">
-                                    <input type="checkbox" class="hidden" v-model="selectedJobRoles" :value="jobRole" :id="'item' + jobRole.id">
+                                    <input type="checkbox" class="hidden" v-model="data.job_roles" :value="jobRole" :id="'item' + jobRole.id">
                                     <label :for="'item' + jobRole.id" class="rounded-xl bg-gray-400 px-8 py-1 text-white btn-secondary-transparent">Add</label>
                                     <ChevronDownIcon  class="size-5 text-secondary" />
                                 </div>
@@ -85,10 +88,17 @@
                             <div>{{ jobRole.description }}</div>
                         </div>
                     </div>
-                    <div class="flex-none">
-                    1
+                    <div class="flex-none flex flex-row p-8">
+                        <div class="grow flex flex-row gap-2">
+                            <PlusCircleIcon class="size-5 self-center" />
+                            <Input class="grow" placeholder="Add a custom job role" />
+                        </div>
+                        <div class="flex-none">
+                            <Button class="flex-none px-4 py-0 !w-fit">Add</Button>
+                        </div>
                     </div>
                 </div>
+                <span v-if="errors && errors.job_roles" v-for="error in errors.job_roles" class="text-xs text-red-500">{{ error }}</span>
             </div>
         </div>
         
@@ -97,12 +107,16 @@
             <div class="flex-1 flex flex-col gap-3">
                 <div class="text-accent text-xl font-medium">Location</div>
                 <div>Select your business location.</div>                
-                <div class="w-full bg-white flex flex-row border border-gray-300 rounded-xl px-8 py-6 gap-10 items-center">
+                <div :class="{'border-red-500' : errors && (errors.country || errors.state)}" class="w-full bg-white flex flex-row border border-gray-300 rounded-xl px-8 py-6 gap-10 items-center">
                     <div>{{ selectedCountry?.name ?? 'Country' }}</div>
                     <div><ChevronRightIcon class="size-5 text-gray-500" /></div>
                     <div>{{ selectedState?.name ?? 'State' }}</div>
                 </div>
-                <div class="w-full bg-white flex flex-wrap border border-gray-300 rounded-xl">
+                <div class="flex flex-col">
+                    <span v-if="errors && errors.country" v-for="error in errors.country" class="text-xs text-red-500">{{ error }}</span>
+                    <span v-if="errors && errors.state" v-for="error in errors.state" class="text-xs text-red-500">{{ error }}</span>
+                </div>
+                <div :class="{'border-red-500' : errors && (errors.country || errors.state)}" class="w-full bg-white flex flex-wrap border border-gray-300 rounded-xl">
                     <div class="flex-none w-full border-b border-gray-300 rounded-t-md px-8 py-6">
                         <div class="flex flex-row items-center gap-3">
                             <MagnifyingGlassIcon  class="size-5 text-gray-400" />
@@ -118,7 +132,7 @@
                                     type="radio"
                                     name="country"
                                     :value="country"
-                                    v-model="selectedCountry"
+                                    v-model="data.country"
                                 />
                                 <span class="flex-1 text-left">{{ country.name }}</span>
                                 <ChevronRightIcon class="size-5 text-gray-400 group-hover:text-white peer-checked:text-white" />
@@ -134,7 +148,7 @@
                                     type="radio"
                                     name="state"
                                     :value="state"
-                                    v-model="selectedState"
+                                    v-model="data.state"
                                 />
                                 <span class="flex-1 text-left">{{ state.name }} </span>
                             </label>
@@ -149,27 +163,15 @@
             <div class="flex-1 flex flex-col gap-3">
                 <div class="text-accent text-xl font-medium">Features</div>
                 <div>Choose from the available list of features.</div>
-                <div class="flex-grow w-full bg-white flex flex-col border border-gray-300 rounded-xl">
+                <div :class="{'border-red-500' : errors && errors.features}" class="flex-grow w-full bg-white flex flex-col border border-gray-300 rounded-xl">
                     <div class="flex-none w-full border-b border-gray-300 px-8 py-6">
                         <div class="flex flex-wrap items-center gap-2">
                             <div class="flex flex-wrap items-center gap-3">
                                 <MagnifyingGlassIcon  class="size-5 text-gray-400" />
                                 <input name="business_type" type="text" placeholder="Search..." />
                             </div>
-                            <span class="flex flex-row px-5 py-2 rounded-xl text-accent font-medium text-sm bg-secondary bg-opacity-40 gap-2 items-center">
-                                Practical Troubleshooter 
-                                <button type="button" aria-label="Remove Job Role" title="Remove Job Role">
-                                    <XMarkIcon class="size-3" />
-                                </button>
-                            </span>
-                            <span class="flex flex-row px-5 py-2 rounded-xl text-accent font-medium text-sm bg-secondary bg-opacity-40 gap-2 items-center">
-                                Reliable Fixer 
-                                <button type="button" aria-label="Remove Job Role" title="Remove Job Role">
-                                    <XMarkIcon class="size-3" />
-                                </button>
-                            </span>
-                            <span class="flex flex-row px-5 py-2 rounded-xl text-accent font-medium text-sm bg-secondary bg-opacity-40 gap-2 items-center">
-                                Skilled Technician 
+                            <span v-for="(feature, key) in selectedFeatures" class="flex flex-row px-5 py-2 rounded-xl text-accent font-medium text-sm bg-secondary bg-opacity-40 gap-2 items-center">
+                                {{ feature.name }} 
                                 <button type="button" aria-label="Remove Job Role" title="Remove Job Role">
                                     <XMarkIcon class="size-3" />
                                 </button>
@@ -177,51 +179,12 @@
                         </div>
                     </div>
                     <div class="flex-1 flex flex-col p-8 gap-5 overflow-y-auto max-h-[400px]">
-                        <div class="flex flex-col gap-2 py-3 px-5 border-b">
+                        <div v-for="feature in businessFeatures" class="flex flex-col gap-2 py-3 px-5 border-b">
                             <div class="flex flex-row">
-                                <div class="flex-grow flex items-center font-bold">Practical Troubleshooter</div>
+                                <div class="flex-grow flex items-center font-bold">{{ feature.name }}</div>
                                 <div class="flex-none flex flex-row gap-5 items-center">
-                                    <button type="button" class="rounded-xl bg-gray-400 px-8 py-1 text-white">Add</button>
-                                    <ChevronDownIcon  class="size-5 text-secondary" />
-                                </div>
-                            </div>
-                            <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vitae massa neque. Aenean dapibus posuere augue, gravida lobortis libero.</div>
-                        </div>
-                        <div class="flex flex-col gap-2 py-3 px-5 border-b">
-                            <div class="flex flex-row">
-                                <div class="flex-grow flex items-center font-bold">Practical Troubleshooter</div>
-                                <div class="flex-none flex flex-row gap-5 items-center">
-                                    <button type="button" class="rounded-xl bg-gray-400 px-8 py-1 text-white">Add</button>
-                                    <ChevronDownIcon  class="size-5 text-secondary" />
-                                </div>
-                            </div>
-                            <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vitae massa neque. Aenean dapibus posuere augue, gravida lobortis libero.</div>
-                        </div>
-                        <div class="flex flex-col gap-2 py-3 px-5 border-b">
-                            <div class="flex flex-row">
-                                <div class="flex-grow flex items-center font-bold">Practical Troubleshooter</div>
-                                <div class="flex-none flex flex-row gap-5 items-center">
-                                    <button type="button" class="rounded-xl bg-gray-400 px-8 py-1 text-white">Add</button>
-                                    <ChevronDownIcon  class="size-5 text-secondary" />
-                                </div>
-                            </div>
-                            <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vitae massa neque. Aenean dapibus posuere augue, gravida lobortis libero.</div>
-                        </div>
-                        <div class="flex flex-col gap-2 py-3 px-5 border-b">
-                            <div class="flex flex-row">
-                                <div class="flex-grow flex items-center font-bold">Practical Troubleshooter</div>
-                                <div class="flex-none flex flex-row gap-5 items-center">
-                                    <button type="button" class="rounded-xl bg-gray-400 px-8 py-1 text-white">Add</button>
-                                    <ChevronDownIcon  class="size-5 text-secondary" />
-                                </div>
-                            </div>
-                            <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vitae massa neque. Aenean dapibus posuere augue, gravida lobortis libero.</div>
-                        </div>
-                        <div class="flex flex-col gap-2 py-3 px-5 border-b">
-                            <div class="flex flex-row">
-                                <div class="flex-grow flex items-center font-bold">Practical Troubleshooter</div>
-                                <div class="flex-none flex flex-row gap-5 items-center">
-                                    <button type="button" class="rounded-xl bg-gray-400 px-8 py-1 text-white">Add</button>
+                                    <input type="checkbox" class="hidden" v-model="data.features" :value="feature" :id="'item' + feature.id">
+                                    <label :for="'item' + feature.id" class="rounded-xl bg-gray-400 px-8 py-1 text-white btn-secondary-transparent">Add</label>
                                     <ChevronDownIcon  class="size-5 text-secondary" />
                                 </div>
                             </div>
@@ -229,6 +192,7 @@
                         </div>
                     </div>
                 </div>
+                <span v-if="errors && errors.features" v-for="error in errors.features" class="text-xs text-red-500">{{ error }}</span>
             </div>
         </div>
 
@@ -239,7 +203,7 @@
                 <div>Make your custom URL for your business.</div>
                 <div class="flex-grow w-full flex flex-col gap-5">
                     <div class="flex-none w-full px-8 py-4 rounded-xl bg-white border border-gray-300">
-                        <input class="w-full" name="custom_url" type="text" placeholder="enterpriseopt.com/business.name" />
+                        <input v-model="data.custom_url" class="w-full" name="custom_url" type="text" placeholder="enterpriseopt.com/business.name" />
                     </div>
                     <div class="flex-none w-full">
                         <button class="bg-secondary w-full p-4 text-white rounded-xl font-semibold" @click="handleSubmit">Finish</button>
@@ -252,7 +216,8 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, reactive, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import Logo from '@/components/Logo.vue';
 import SolidFireworks from '@/assets/solid-fireworks.svg';
 import BalloonIcon from '@/assets/icons/balloon-sharp.svg';
@@ -268,39 +233,53 @@ import ShipIcon from '@/assets/icons/ship.svg';
 import ToolIcon from '@/assets/icons/tool-fill.svg';
 import TruckIcon from '@/assets/icons/truck-fill.svg';
 import CleaningServicesIcon from '@/assets/icons/cleaning-services.svg';
-import { MagnifyingGlassIcon, ChevronRightIcon, ChevronDownIcon, XMarkIcon } from '@heroicons/vue/24/solid'
+import { MagnifyingGlassIcon, ChevronRightIcon, ChevronDownIcon, XMarkIcon, PlusCircleIcon } from '@heroicons/vue/24/solid'
 import StepNumber from '@/components/StepNumber.vue';
 import CountryCityStateJson from 'countrycitystatejson';
+import { useBusinessStore } from '@/stores/business.js'
+import { useAuthStore } from '@/stores/auth.js'
+import Button from '@/components/Button.vue';
 
-const countryItems = CountryCityStateJson.getCountries();
-countryItems.sort((a, b) => a.name.localeCompare(b.name));
+const router = useRouter();
+const businessStore = useBusinessStore();
+const authStore = useAuthStore();
+const countryItems = ref([]);
 const countries = ref([]);
-const states = ref({});
+const states = ref([]);
+const jobRoles = ref([]);
 const selectedCountry = ref(null);
 const selectedState = ref(null);
 const selectedType = ref(null);
+const selectedBusinessType = ref(null);
 const selectedJobRoles = ref([]);
+const selectedFeatures = ref([]);
 const countrySearch = ref('');
-const jobRoles = [
-    { id: 1, name: 'Practical Troubleshooter', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vitae massa neque. Aenean dapibus posuere augue, gravida lobortis libero.' },
-    { id: 2, name: 'Reliable Fixer', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vitae massa neque. Aenean dapibus pos uere augue, gravida lobortis libero.' },
-    { id: 3, name: 'Skilled Technician', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vitae massa neque. Aenean dapibus pos uere augue, gravida lobortis libero.' }
-]
-const businessTypeOptions = [
-    { value: 'beauty_salon', label: 'Beauty Salons', icon: BeautySalonIcon },
-    { value: 'cleaning_business', label: 'Cleaning Business', icon: CleanHandsIcon },
-    { value: 'event_coordinators', label: 'Event Coordinators', icon: BalloonIcon },
-    { value: 'tour_guide', label: 'Tour Guide', icon: MapIcon },
-    { value: 'janitorial_services', label: 'Janitorial Services', icon: CleaningServicesIcon },
-    { value: 'landscaping', label: 'Landscaping', icon: LandscapeIcon },
-    { value: 'legal_services', label: 'Legal services', icon: LegalIcon },
-    { value: 'moving_company', label: 'Moving Company', icon: TruckIcon },
-    { value: 'photography', label: 'Photography', icon: CameraIcon },
-    { value: 'property_managers', label: 'Property Managers', icon: HouseIcon },
-    { value: 'repairmen', label: 'Repairmen', icon: ToolIcon },
-    { value: 'shipping_freight', label: 'Shipping/Freight', icon: ShipIcon },
-    { value: 'financial_services', label: 'Financial Services Consulting', icon: MoneyBagIcon }
-]
+const businessTypeOptions = ref([]);
+const iconMap = {
+    'Cleaning Business': CleanHandsIcon,
+    Landscaping: LandscapeIcon,
+    Janitorial: CleaningServicesIcon,
+    Repairmen: ToolIcon,
+    'Moving Company': TruckIcon,
+    'Property Managers': HouseIcon,
+    'Tour Guide': MapIcon,
+    Photography: CameraIcon,
+    'Event Coordinators': BalloonIcon,
+    'Shipping/Freight': ShipIcon,
+    'Beauty Salons': BeautySalonIcon,
+    'Financial Services': MoneyBagIcon,
+    'Legal services': LegalIcon,
+};
+const businessFeatures = ref([]);
+const data = reactive({
+    business_type: selectedBusinessType,
+    country: selectedCountry,
+    state: selectedState,
+    job_roles: selectedJobRoles,
+    features: selectedFeatures,
+    custom_url: null
+})
+const errors = ref({});
 
 const getCountries = async () => {
     const cacheKey = 'countries';
@@ -316,6 +295,9 @@ const getCountries = async () => {
     }
     
     countries.value = cachedData;
+    countryItems.value = cachedData;
+    
+    return cachedData;
 }
 
 getCountries();
@@ -339,25 +321,126 @@ const getStates = async (iso2) => {
     return cachedData;
 }
 
-const handleSubmit = () => {
-    console.log('Submit', selectedJobRoles.value);
+const getJobRoles = async () => {
+    const cacheKey = 'job_roles';
+    let cachedData = localStorage.getItem(cacheKey);    
+
+    if (cachedData && false) {
+        cachedData = JSON.parse(cachedData);
+    } else {
+        // If data does not exist in cache, fetch and cache it
+        const results = await axios.get('api/v1/jobs/roles');
+        cachedData = results.data.data;
+        localStorage.setItem(cacheKey, JSON.stringify(cachedData));
+    }
+
+    console.log('jobRoles', cachedData);
+    
+    
+    jobRoles.value = cachedData;
 }
 
-watch(selectedCountry, async (newValue, oldValue) => {
-    selectedState.value = null;    
+getJobRoles();
+
+const getBusinessFeatures = async () => {
+    const cacheKey = 'business_features';
+    let cachedData = localStorage.getItem(cacheKey);    
+
+    if (cachedData && false) {
+        cachedData = JSON.parse(cachedData);
+    } else {
+        // If data does not exist in cache, fetch and cache it
+        const results = await axios.get('api/v1/business/features');
+        cachedData = results.data.data;
+        localStorage.setItem(cacheKey, JSON.stringify(cachedData));
+    }
+
+    businessFeatures.value = cachedData;
+}
+
+getBusinessFeatures();
+
+const getBusinessTypes = async () => {
+    const cacheKey = 'business_types';
+    let cachedData = localStorage.getItem(cacheKey);    
+
+    if (cachedData && false) {
+        cachedData = JSON.parse(cachedData);
+    } else {
+        // If data does not exist in cache, fetch and cache it
+        const results = await axios.get('api/v1/business/types');
+        cachedData = results.data.data;
+        localStorage.setItem(cacheKey, JSON.stringify(cachedData));
+    }
+
+    businessTypeOptions.value = cachedData.map(item => ({
+        ...item,
+        icon: iconMap[item.name] || null, // Assign icon if exists, otherwise null
+    }));
+
+    console.log(cachedData);
+    
+
+    // businessFeatures.value = cachedData;
+
+    return cachedData
+}
+
+getBusinessTypes();
+
+const handleSubmit = () => {
+    const {
+        business_type,
+        country,
+        state,
+        job_roles,
+        features,
+        custom_url
+    } = data;
+
+    const payload = {
+        business_type,
+        country: country?.iso2,
+        state: state?.name,
+        job_roles: job_roles.map((role) => role.id),
+        features: features.map((feature) => feature.id),
+        custom_url
+    }
+
+    businessStore.createBusiness(payload).then((response) => {
+        const result = response.data.data;
+        
+        authStore.set_business(result)
+        
+        router.push({ name: 'Home' })
+    }).catch((error) => {
+        console.log(error);
+        
+        errors.value = error.response.data.errors;        
+    });
+}
+
+watch(selectedCountry, async (newValue, oldValue) => {    
+    data.state = null;
+    
     states.value = await getStates(newValue.iso2);
 });
 
 watch(countrySearch, (newValue, oldValue) => {
     if (!newValue) {
         // If search query is empty, return all items
-        countries.value = countryItems;
+        countries.value = countryItems.value;
     } else {
         // Filter items based on search query (case-insensitive)
-        countries.value = countryItems.filter((item) =>
+        countries.value = countryItems.value.filter((item) =>
             item.name.toLowerCase().includes(newValue.toLowerCase())
         );
     }
+});
+
+watch(data.job_roles, async (newValue, oldValue) => {
+    console.log(newValue, oldValue);
+    
 });
     
 </script>

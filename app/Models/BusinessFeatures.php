@@ -2,12 +2,20 @@
 
 namespace App\Models;
 
+use App\Listeners\GenerateSlug;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class BusinessFeatures extends Model
 {
     protected $fillable = ['name', 'slug'];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving([GenerateSlug::class, 'handle']);
+    }
 
     public function setSlugAttribute($value)
     {

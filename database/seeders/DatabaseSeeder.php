@@ -21,12 +21,12 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         // Run individual seeders
-        // $this->call([
-        //     BusinessTypeSeeder::class,
-        //     BusinessFeatureSeeder::class,
-        //     BusinessTypeFeatureSeeder::class, // Pivot table seeder
-        // ]);
+        $this->call([
+            BusinessTypeSeeder::class,
+            BusinessFeatureSeeder::class,
+            BusinessTypeFeatureSeeder::class, // Pivot table seeder
+        ]);
 
-        $this->call(WorldTableSeeder::class);
+        // $this->call(WorldTableSeeder::class);
     }
 }

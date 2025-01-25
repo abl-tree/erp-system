@@ -8,6 +8,9 @@ export const useAuthStore = defineStore('auth', {
     set_user(user) {
       this.user = user
     },
+    set_business(business) {
+      this.user.businesses.push(business)
+    },
     async attempt_user() {
       return axios.get('/api/v1/me')
         .then((response) => {

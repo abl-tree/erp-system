@@ -22,9 +22,14 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'firstname',
+        'lastname',
+        'business_name',
+        'phone_number',
         'email',
         'password',
+        'user_role_id',
+        'password_updated_at',
     ];
 
     /**
@@ -45,7 +50,8 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $appends = [
-        'profile_photo_url',
+        // 'profile_photo_url',
+        'full_name',
     ];
 
     /**
@@ -59,5 +65,25 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function getFullNameAttribute(): string
+    {
+        return "{$this->firstname} {$this->lastname}";
+    }
+
+    public function businesses()
+    {
+        return $this->hasMany(Business::class, 'user_id', 'id');
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'user_roles', 'user_id', 'role_id')->withPivot('id');
+    }
+
+    public function activeRole()
+    {
+        return $this->belongsTo(UserRole::class, 'user_role_id');
     }
 }

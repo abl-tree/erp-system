@@ -50,4 +50,23 @@ class AddressController extends Controller
             'states' => $data,
         ]);
     }
+
+    public function getCities(Request $request)
+    {
+        $iso2 = $request->input('iso2');
+        $cacheKey = "cities-$iso2";
+        $data = Cache::get($cacheKey);
+
+        if (!$data) {
+            $states = Country::getByIso2($iso2)->cities()->orderBy('name')->get();
+
+            Cache::forever($cacheKey, $states);
+
+            $data = $states;
+        }
+
+        return response()->json([
+            'cities' => $data,
+        ]);
+    }
 }

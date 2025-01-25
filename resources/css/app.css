@@ -35,3 +35,11 @@
 .btn-secondary-transparent {
   @apply hover:bg-secondary active:bg-secondary-600 cursor-pointer hover:text-white rounded-2xl;
 }
+
+.text-title {
+  @apply text-2xl font-bold text-accent;
+}
+
+.font-link {
+  @apply font-semibold text-primary hover:text-primary-600 hover:underline cursor-pointer;
+}

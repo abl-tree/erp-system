@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\User\MeController;
+use App\Http\Controllers\Api\V1\User\AccountController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,13 +19,27 @@ Route::prefix('v1')
         
         Route::prefix('business')
             ->group(function () {
+                Route::post('/create', 'BusinessDetailsController@createBusiness');
+                Route::post('/user/create', 'BusinessDetailsController@createUser');
+                Route::get('/users', 'BusinessDetailsController@getUsers');
                 Route::get('/types', 'BusinessDetailsController@businessTypes');
                 Route::get('/features/{id?}', 'BusinessDetailsController@businessFeatures');
+            });
+        
+        Route::prefix('jobs')
+            ->group(function () {
+                Route::get('/roles', 'JobsController@jobRoles');
             });
 
         Route::prefix('address')
             ->group(function () {
                 Route::get('/countries', 'AddressController@getCountries');
                 Route::get('/states', 'AddressController@getStates');
+                Route::get('/cities', 'AddressController@getCities');
+            });
+
+        Route::prefix('account')
+            ->group(function () {
+                Route::get('/roles', [AccountController::class, 'getRoles']);
             });
     });

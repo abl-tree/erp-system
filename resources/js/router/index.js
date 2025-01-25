@@ -23,7 +23,7 @@ const router = createRouter({
     {
       path: '/',
       component: Authenticated,
-      meta: { requiresAuth: true, isVerified: true },
+      meta: { requiresAuth: true, requiresVerification: true, requiresComplete: true },
       children: [
         { path: "/", name: 'Home', component: Home },
         { path: "/user", name: 'User', component: User },
@@ -33,8 +33,14 @@ const router = createRouter({
     },
     {
       path: '/',
-      component: Authenticated,
-      // meta: { requiresAuth: true, isVerified: false },
+      meta: { requiresAuth: true, requiresVerification: true, requiresComplete: false },
+      children: [
+        { path: "/business-registration", name: 'BusinessRegistration', component: BusinessRegistration }
+      ]
+    },
+    {
+      path: '/',
+      meta: { requiresAuth: true, requiresVerification: false },
       children: [
         { path: "/verify-email", name: 'VerifyEmail', component: VerifyEmail },
       ]
@@ -49,8 +55,7 @@ const router = createRouter({
         { path: "/login", name: 'Login', component: Login },
         { path: "/two-factor-challenge", name: 'TwoFactorChallenge', component: TwoFactorChallenge },
         { path: "/forgot-password", name: 'ForgotPassword', component: ForgotPassword },
-        { path: "/reset-password/:token", name: 'ResetPassword', component: ResetPassword },
-        { path: "/business-registration", name: 'BusinessRegistration', component: BusinessRegistration }
+        { path: "/reset-password/:token", name: 'ResetPassword', component: ResetPassword }
       ]
     },
     {
@@ -63,12 +68,21 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
+  
+  console.log('auth', !to.meta.requiresComplete && authStore.currentUser && !authStore.currentUser.businesses.length && authStore.currentUser.user_role_id != null);
+  
 
   if (to.meta.requiresAuth && !authStore.currentUser) {
     next({ name: "Login" })
-  } else if (to.meta.isVerified && !authStore.currentUser.email_verified_at) {
-      next({ name: "VerifyEmail" })
-  } else if (!to.meta.isVerified && authStore.currentUser && authStore.currentUser.email_verified_at) {
+  } else if (to.meta.requiresVerification && authStore.currentUser && !authStore.currentUser.email_verified_at) {
+    next({ name: "VerifyEmail" })
+  } else if (to.meta.requiresComplete && authStore.currentUser && !authStore.currentUser.businesses.length && authStore.currentUser.user_role_id == null) {
+    next({ name: "BusinessRegistration" })
+  } else if (!to.meta.requiresComplete && authStore.currentUser && !authStore.currentUser.businesses.length && authStore.currentUser.user_role_id != null) {    
+    next({ name: "Home" })
+  } else if (!to.meta.requiresComplete && authStore.currentUser && authStore.currentUser.businesses.length) {
+    next({ name: "Home" })
+  } else if (!to.meta.requiresVerification && authStore.currentUser && authStore.currentUser.email_verified_at) {
     next({ name: "Home" })
   } else if (to.meta.isGuest && authStore.currentUser) {
     next({ name: "Home" })

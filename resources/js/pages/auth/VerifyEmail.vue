@@ -1,26 +1,51 @@
 <template>
-  <div class="min-h-screen flex flex-col justify-center items-center pt-6 sm:pt-0 p-4">
-    <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden rounded-lg">
-      <h3 class="text-lg font-medium text-gray-900">Verify Email Address</h3>
-
-      <p class="text-sm text-gray-600 py-2">Thanks for signing up! Before getting started, could you verify your email
-        address by clicking on the link we just emailed to you? If you didn't receive the email, we will gladly send you
-        another.</p>
-
-      <form @submit.prevent="resendVerification">
-        <div v-if="errors" class="text-red-500 py-2 font-semibold">
-          <span>{{ errors.message }}</span>
+  <div class="min-h-screen h-full bg-primary flex flex-col justify-center items-center pt-6 sm:pt-0 p-4">
+    <div class="bg-white px-16 py-8 rounded-xl shadow-lg w-full max-w-3xl">
+      <div class="relative flex justify-center space-x-2">
+        <div class="grow-0 absolute top-1/2 -right-10 -translate-y-1/2">
+          <ArrowRightStartOnRectangleIcon class="size-8 h-fit text-secondary cursor-pointer" @click="logoutUser()" />
         </div>
-        <div class="flex items-center justify-end mt-4">
-          <button type="submit"
-            class="inline-flex items-center px-4 py-2 bg-gray-900 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150 ml-3">
-            Resend Verification Email
-          </button>
-        </div>
-      </form>
+      </div>
+
+      <div class="flex flex-col justify-center items-center px-36 py-14 gap-4">
+        <SolidMail class="flex-none" />
+        <h2 class="text-2xl font-semibold text-center">Verification</h2>
+        <p class="text-gray-600 text-xs text-center">Check your email for the verification link sent to <span class="font-bold">{{ currentUser.email }}</span></p>
+
+        <form @submit.prevent="resendVerification">
+          <div class="flex items-center justify-end mt-4">
+            <p class="text-gray-600 text-xs text-center">Not in inbox or spam folder? <button type="submit"
+              class="font-bold font-link">
+              Resend
+            </button></p>
+          </div>
+          
+          <div v-if="errors" class="text-red-500 py-2 font-semibold">
+            <span>{{ errors.message }}</span>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </template>
+
+<script setup>
+import { useRouter } from 'vue-router'
+import SolidMail from '@/assets/solid-mail.svg'
+import { useAuthStore } from '@/stores/auth.js'
+import { ArrowRightStartOnRectangleIcon } from '@heroicons/vue/24/outline'
+
+const router = useRouter()
+const authStore = useAuthStore()
+const { currentUser } = authStore
+
+const logoutUser = () => {
+  authStore.logout()
+  .then(() => {
+    router.push({ name: 'Login' })
+  })
+}
+</script>
 
 <script>
 export default {

@@ -22,6 +22,7 @@ class UserResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'two_factor' => $this->hasEnabledTwoFactorAuthentication(), // required in Vue for TwoFactoreAuthentication.
+            'businesses' => $this->businesses
         ];
     }
 }

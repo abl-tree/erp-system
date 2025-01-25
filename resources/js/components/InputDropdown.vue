@@ -1,8 +1,8 @@
 <template>
   <div class="flex flex-row">
-    <button class="rounded-l-lg bg-secondary p-2 text-xs font-bold">Add New</button>
-    <button class="relative rounded-r-lg bg-secondary p-2 text-xs font-bold" @click="toggleDropdown">
-        Add New
+    <button class="rounded-l-lg bg-secondary p-2 text-xs font-bold" @click="add">Add New</button>
+    <button class="relative rounded-r-lg bg-white p-2 text-xs font-bold" @click="toggleDropdown">
+        <ChevronDownIcon  class="size-5 text-accent" />
         <!-- Dropdown Menu -->
         <div
             v-if="showDropdown"
@@ -23,24 +23,27 @@
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      query: "",
-      showDropdown: false,
-      options: ["Option 1", "Option 2", "Option 3", "Option 4"],
-    };
-  },
-  methods: {
-    toggleDropdown() {
-      this.showDropdown = !this.showDropdown;
-    },
-    selectOption(option) {
-      this.query = option; // Set the input value to the selected option
-      this.showDropdown = false; // Close the dropdown
-    },
-  },
+<script setup>
+import { ref, defineEmits } from 'vue'
+import { MagnifyingGlassIcon, ChevronRightIcon, ChevronDownIcon, XMarkIcon } from '@heroicons/vue/24/solid'
+
+const emit = defineEmits(['add'])
+
+const query = ref("");
+const showDropdown = ref(false);
+const options = ref(["Option 1", "Option 2", "Option 3", "Option 4"]);
+
+const toggleDropdown = () => {
+  showDropdown.value = !showDropdown.value;
+};
+
+const selectOption = (option) => {
+  query.value = option; // Set the input value to the selected option
+  showDropdown.value = false; // Close the dropdown
+};
+
+const add = () => {
+  emit('add');
 };
 </script>
 

@@ -6,18 +6,31 @@
         My Sidebar
     </div>
     <!-- Menu Items -->
-    <nav class="flex-1 space-y-4 text-accent font-bold">
-        <a href="#" class="flex items-center px-4 py-2 text-sm hover:bg-gray-700 rounded-md">
-        <span class="mr-3">🏠</span> Home
-        </a>
-        <a href="#" class="flex items-center px-4 py-2 text-sm hover:bg-gray-700 rounded-md">
-        <span class="mr-3">📁</span> Projects
-        </a>
-        <a href="#" class="flex items-center px-4 py-2 text-sm hover:bg-gray-700 rounded-md">
-        <span class="mr-3">🔔</span> Notifications
-        </a>
-        <a href="#" class="flex items-center px-4 py-2 text-sm hover:bg-gray-700 rounded-md">
-        <span class="mr-3">⚙️</span> Settings
+    <nav class="flex-1 space-y-4 text-primary font-bold">
+        <router-link :to="{ name: 'Home' }" class="flex items-center px-4 py-4 text-sm hover:bg-secondary hover:text-white rounded-xl">
+            <span class="mr-3">
+                <Squares2X2Icon class="size-5" />
+            </span> Dashboard
+        </router-link>
+        <router-link :to="{ name: 'Home' }" class="flex items-center px-4 py-4 text-sm hover:bg-secondary hover:text-white rounded-xl">
+            <span class="mr-3">
+                <CalendarDaysIcon class="size-5" />
+            </span> Schedule
+        </router-link>
+        <router-link :to="{ name: 'Home' }" class="flex items-center px-4 py-4 text-sm hover:bg-secondary hover:text-white rounded-xl">
+            <span class="mr-3">
+                <CreditCardIcon class="size-5" />
+            </span> Payments
+        </router-link>
+        <router-link :to="{ name: 'UserManagement' }" class="flex items-center px-4 py-4 text-sm hover:bg-secondary hover:text-white rounded-xl">
+            <span class="mr-3">
+                <UsersIcon class="size-5" />
+            </span> User Management
+        </router-link>
+        <a @click="logoutUser()" class="flex items-center px-4 py-4 text-sm hover:bg-secondary hover:text-white rounded-xl cursor-pointer">
+            <span class="mr-3">
+                <ArrowRightStartOnRectangleIcon class="size-5" />
+            </span> Logout
         </a>
     </nav>
     <!-- Footer -->
@@ -26,3 +39,20 @@
     </div>
 </div>
 </template>
+
+<script setup>
+import { Squares2X2Icon, CalendarDaysIcon, CreditCardIcon, UsersIcon } from '@heroicons/vue/24/solid'
+import { ArrowRightStartOnRectangleIcon } from '@heroicons/vue/24/outline'
+import { useAuthStore } from '@/stores/auth.js'
+import { useRouter } from 'vue-router'
+
+const authStore = useAuthStore()
+const router = useRouter()
+
+const logoutUser = () => {
+    authStore.logout()
+    .then(() => {
+        router.push({ name: 'Login' })
+    })
+}
+</script>

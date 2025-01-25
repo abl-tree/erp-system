@@ -13,6 +13,15 @@ export default defineConfig({
     sourcemap: true,
   },
   server: {
+    host: '0.0.0.0', // Bind to all network interfaces
+    port: 5173, // Use the default Vite port
+    strictPort: true, // Ensure Vite fails if the port is already in use
+    hmr: {
+      host: 'localhost', // Use 'localhost' or your dev server hostname
+    },
+    watch: {
+      usePolling: true, // Enable polling for file changes in Docker
+    },
   },
   plugins: [
     laravel({

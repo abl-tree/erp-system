@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/auth.js'
 import NotFound from '@/pages/NotFound.vue'
 import Guest from '@/layouts/Guest.vue'
 import Register from '@/pages/auth/Register.vue'
+import CompleteRegistration from '@/pages/auth/CompleteRegistration.vue'
 import Login from '@/pages/auth/Login.vue'
 import TwoFactorChallenge from '@/pages/auth/TwoFactorChallenge.vue'
 import ForgotPassword from '@/pages/auth/ForgotPassword.vue'
@@ -55,7 +56,8 @@ const router = createRouter({
         { path: "/login", name: 'Login', component: Login },
         { path: "/two-factor-challenge", name: 'TwoFactorChallenge', component: TwoFactorChallenge },
         { path: "/forgot-password", name: 'ForgotPassword', component: ForgotPassword },
-        { path: "/reset-password/:token", name: 'ResetPassword', component: ResetPassword }
+        { path: "/reset-password/:token", name: 'ResetPassword', component: ResetPassword },
+        { path: "/complete-registration", name: 'CompleteRegistration', component: CompleteRegistration }
       ]
     },
     {

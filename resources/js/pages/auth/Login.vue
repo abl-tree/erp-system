@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full min-h-lvh grid grid-cols-2">
+  <div class="grid grid-cols-2 min-h-screen h-full">
     <!-- Half Layout (Two Equal Columns) -->
     <div class="bg-primary relative">
       <div class="absolute inset-0 bg-login-img bg-no-repeat bg-cover bg-center opacity-10 min-h-screen"></div>
@@ -8,19 +8,11 @@
         <div class="px-28 py-5 text-center">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vitae massa neque. Aenean dapibus posuere augue, gravida lobortis libero vulputate at. Donec et orci vel turpis luctus malesuada ac ut nisl. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut lobortis elit dui, id mollis mauris tincidunt consequat. Nam fringilla suscipit varius.</div>
       </div>
     </div>
-    <div></div>
-
-    <!-- Boxed Container in the Center -->
-    <div class="absolute left-1/2 top-0 transform -translate-x-1/2 container min-h-screen h-full">
-      <div class="grid grid-cols-2 h-full">
-        <div >
-
-        </div>
-        <div class="flex flex-col p-5">
-          <div class="flex-none flex flex-row justify-end">
-            <logo></logo>
-          </div>
-          <div class="flex-grow flex flex-col justify-center items-center p-5">
+    <div class="flex flex-col py-10 px-5">
+      <div class="flex-none flex flex-row justify-end">
+        <logo></logo>
+      </div>
+      <div class="flex-grow flex flex-col justify-center items-center p-5">
             <div>
               <h1 class="text-[40px] font-bold text-gray-800">Login</h1>
             </div>
@@ -84,12 +76,54 @@
               </router-link>
             </div>
           </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div
+    v-if="isModalOpen"
+    class="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center"
+    @click="closeModal"
+  >
+    <!-- Modal content -->
+    <div class="bg-white px-16 py-8 rounded-xl shadow-lg w-full max-w-3xl" @click.stop>
+      <div v-if="currentSlide == 1" class="relative flex justify-center space-x-2">
+        <div class="grow-0 absolute top-1/2 -right-10 -translate-y-1/2">
+          <ArrowRightStartOnRectangleIcon class="size-8 h-fit text-secondary cursor-pointer" @click="redirectToHome()" />
+        </div>
+      </div>
+
+      <div v-if="currentSlide == 0" class="flex flex-col justify-center items-center px-36 py-14 gap-4">
+        <SolidFireworks class="flex-none" />
+        <h2 class="text-2xl font-semibold text-center">Your account is now registered!</h2>
+        <p class="text-gray-600 text-xs text-center">A verification email has been sent to your registered email address. Click the verification link in your email to activate your account.</p>
+      </div>
+      <div v-else class="flex flex-col justify-center items-center px-36 py-14 gap-4">
+        <SolidMail class="flex-none" />
+        <h2 class="text-2xl font-semibold text-center">Verification</h2>
+        <p class="text-gray-600 text-xs text-center">Check your email for the verification link sent to <span class="font-bold">{{ currentUser?.email }}</span></p>
+        <p class="text-gray-600 text-xs text-center">Not in inbox or spam folder? <span class="font-bold font-link">Resend</span></p>
+      </div>
+
+      <div class="relative flex justify-center space-x-2">
+        <div class="grow flex flex-row gap-2 justify-center items-center">
+          <span
+            v-for="(slide, index) in slides"
+            :key="index"
+            :class="[
+              'w-3 h-3 bg-gray-300 rounded-full cursor-pointer',
+              { '!bg-gray-600': currentSlide === index }
+            ]"
+            @click="goToSlide(index)"
+          ></span>
+        </div>
+        <div v-if="currentSlide == 0" class="grow-0 absolute top-1/2 right-0 -translate-y-1/2">
+          <ArrowLongRightIcon class="size-10 h-fit text-gray-700 cursor-pointer" @click="currentSlide = 1" />
         </div>
       </div>
     </div>
   </div>
 </template>
-
 <script>
 import Logo from '@/components/Logo.vue'
 import { useAuthStore } from '@/stores/auth.js'

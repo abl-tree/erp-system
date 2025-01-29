@@ -65,9 +65,15 @@
                                 <MagnifyingGlassIcon  class="size-5 text-gray-400" />
                                 <input name="business_type" type="text" placeholder="Search..." />
                             </div>
-                            <span v-for="(feature, key) in selectedJobRoles" class="flex flex-row px-5 py-2 rounded-xl text-accent font-medium text-sm bg-secondary bg-opacity-40 gap-2 items-center">
+                            <span v-for="(feature, key) in selectedJobRoles" :key="key" class="flex flex-row px-5 py-2 rounded-xl text-accent font-medium text-sm bg-secondary bg-opacity-40 gap-2 items-center">
                                 {{ feature.name }}
-                                <button type="button" aria-label="Remove Job Role" title="Remove Job Role">
+                                <button type="button" aria-label="Remove Job Role" title="Remove Job Role" @click="removeJobRole(key)">
+                                    <XMarkIcon class="size-3" />
+                                </button>
+                            </span>
+                            <span v-for="(value, key) in selectedCustomJobRoles" :key="key" class="flex flex-row px-5 py-2 rounded-xl text-accent font-medium text-sm bg-secondary bg-opacity-40 gap-2 items-center">
+                                {{ value }}
+                                <button type="button" aria-label="Remove Job Role" title="Remove Job Role" @click="removeJobRole(key, true)">
                                     <XMarkIcon class="size-3" />
                                 </button>
                             </span>
@@ -91,10 +97,10 @@
                     <div class="flex-none flex flex-row p-8">
                         <div class="grow flex flex-row gap-2">
                             <PlusCircleIcon class="size-5 self-center" />
-                            <Input class="grow" placeholder="Add a custom job role" />
+                            <input type="text" class="grow" v-model="customJobRolesInput" placeholder="Add a custom job role" />
                         </div>
                         <div class="flex-none">
-                            <Button class="flex-none px-4 py-0 !w-fit">Add</Button>
+                            <Button class="flex-none px-4 py-0 !w-fit" @click="addCustomJobRole">Add</Button>
                         </div>
                     </div>
                 </div>
@@ -170,9 +176,9 @@
                                 <MagnifyingGlassIcon  class="size-5 text-gray-400" />
                                 <input name="business_type" type="text" placeholder="Search..." />
                             </div>
-                            <span v-for="(feature, key) in selectedFeatures" class="flex flex-row px-5 py-2 rounded-xl text-accent font-medium text-sm bg-secondary bg-opacity-40 gap-2 items-center">
+                            <span v-for="(feature, key) in selectedFeatures" :key="key" class="flex flex-row px-5 py-2 rounded-xl text-accent font-medium text-sm bg-secondary bg-opacity-40 gap-2 items-center">
                                 {{ feature.name }} 
-                                <button type="button" aria-label="Remove Job Role" title="Remove Job Role">
+                                <button type="button" aria-label="Remove Job Role" title="Remove Job Role" @click="removeFeature(key)">
                                     <XMarkIcon class="size-3" />
                                 </button>
                             </span>
@@ -252,8 +258,10 @@ const selectedState = ref(null);
 const selectedType = ref(null);
 const selectedBusinessType = ref(null);
 const selectedJobRoles = ref([]);
+const selectedCustomJobRoles = ref([]);
 const selectedFeatures = ref([]);
 const countrySearch = ref('');
+const customJobRolesInput = ref('');
 const businessTypeOptions = ref([]);
 const iconMap = {
     'Cleaning Business': CleanHandsIcon,
@@ -276,6 +284,7 @@ const data = reactive({
     country: selectedCountry,
     state: selectedState,
     job_roles: selectedJobRoles,
+    custom_job_roles: selectedCustomJobRoles,
     features: selectedFeatures,
     custom_url: null
 })
@@ -394,6 +403,7 @@ const handleSubmit = () => {
         country,
         state,
         job_roles,
+        custom_job_roles,
         features,
         custom_url
     } = data;
@@ -403,6 +413,7 @@ const handleSubmit = () => {
         country: country?.iso2,
         state: state?.name,
         job_roles: job_roles.map((role) => role.id),
+        custom_job_roles: custom_job_roles,
         features: features.map((feature) => feature.id),
         custom_url
     }
@@ -418,6 +429,25 @@ const handleSubmit = () => {
         
         errors.value = error.response.data.errors;        
     });
+}
+
+const removeJobRole = (index, custom = false) => {
+    if (custom) {
+        data.custom_job_roles.splice(index, 1);
+    } else {
+        data.job_roles.splice(index, 1);
+    }
+}
+
+const removeFeature = (index) => {
+    data.features.splice(index, 1);
+}
+
+const addCustomJobRole = () => {
+    if (customJobRolesInput.value) {
+        data.custom_job_roles.push(customJobRolesInput.value);
+        customJobRolesInput.value = '';
+    }
 }
 
 watch(selectedCountry, async (newValue, oldValue) => {    

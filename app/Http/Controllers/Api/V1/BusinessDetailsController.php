@@ -7,7 +7,9 @@ use App\Models\BusinessFeatures;
 use App\Models\BusinessType;
 use Illuminate\Http\Request;
 use App\Models\Business;
+use App\Models\EmployeeProfile;
 use App\Models\User;
+use App\Models\UserProfile;
 
 class BusinessDetailsController extends Controller
 {
@@ -85,18 +87,24 @@ class BusinessDetailsController extends Controller
             'postal_code' => 'required|string',
             'business_type' => 'required|integer',
             'role' => 'required|integer|exists:roles,id',
-            'job_position' => 'required_if:role,3',
-            'department' => 'required_if:role,3',
-            'employment_type' => 'required_if:role,3',
-            'start_date' => 'required_if:role,3',
-            'attendance_shift' => 'required_if:role,3',
-        ], [
-            'job_position.required_if' => 'The job position field is required.',
-            'department.required_if' => 'The department field is required.',
-            'employment_type.required_if' => 'The employment type field is required.',
-            'start_date.required_if' => 'The start date field is required.',
-            'attendance_shift.required_if' => 'The attendance shift field is required.',
         ]);
+
+        if ($request->role == 3) {
+            $request->validate([
+                'job_position' => 'required_if:role,3',
+                'department' => 'required_if:role,3|exists:departments,id',
+                'employment_type' => 'required_if:role,3|exists:employment_types,id',
+                'start_date' => 'required_if:role,3',
+                'attendance_shift' => 'required_if:role,3|exists:attendance_shifts,id',
+                'special_notes' => 'nullable|string'
+            ], [
+                'job_position.required_if' => 'The job position field is required.',
+                'department.required_if' => 'The department field is required.',
+                'employment_type.required_if' => 'The employment type field is required.',
+                'start_date.required_if' => 'The start date field is required.',
+                'attendance_shift.required_if' => 'The attendance shift field is required.',
+            ]);
+        }
 
         $user = new User([
             'firstname' => $request->firstname,
@@ -113,6 +121,30 @@ class BusinessDetailsController extends Controller
             $user->update([
                 'user_role_id' => $role->pivot->id ?? null
             ]);
+
+            $profile = new UserProfile([
+                'address' => $request->street,
+                'city' => $request->city,
+                'country' => $request->country,
+                'postal_code' => $request->postal_code,
+                'business_type_id' => $request->business_type,
+                'role_id' => $request->role
+            ]);
+
+            $user->profile()->save($profile);
+
+            if ($request->role == 3) {
+                $employee_profile = new EmployeeProfile([
+                    'department_id' => $request->department,
+                    'employment_type_id' => $request->employment_type,
+                    'attendance_shift_id' => $request->attendance_shift,
+                    'hired_at' => $request->start_date,
+                    'job_position' => $request->job_position,
+                    'special_notes' => $request->special_notes ?? ''
+                ]);
+
+                $user->employeeProfile()->save($employee_profile);
+            }
         }
 
         return response()->json([
@@ -121,9 +153,115 @@ class BusinessDetailsController extends Controller
         ]);
     }
 
+    public function updateUser(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer|exists:users,id',
+            'firstname' => 'required|string',
+            'lastname' => 'required|string',
+            'email' => 'required|email|unique:users,email,'.$request->id,
+            'phone' => 'required|string',
+            'street' => 'required|string',
+            'city' => 'required|string',
+            'country' => 'required|string',
+            'postal_code' => 'required|string',
+            'business_type' => 'required|integer',
+            'role' => 'required|integer|exists:roles,id',
+        ]);
+
+        if ($request->role == 3) {
+            $request->validate([
+                'job_position' => 'required_if:role,3',
+                'department' => 'required_if:role,3|exists:departments,id',
+                'employment_type' => 'required_if:role,3|exists:employment_types,id',
+                'start_date' => 'required_if:role,3',
+                'attendance_shift' => 'required_if:role,3|exists:attendance_shifts,id',
+                'special_notes' => 'nullable|string'
+            ], [
+                'job_position.required_if' => 'The job position field is required.',
+                'department.required_if' => 'The department field is required.',
+                'employment_type.required_if' => 'The employment type field is required.',
+                'start_date.required_if' => 'The start date field is required.',
+                'attendance_shift.required_if' => 'The attendance shift field is required.',
+            ]);
+        }
+
+        $user = User::find($request->id);
+        $user->firstname = $request->firstname;
+        $user->lastname = $request->lastname;
+        $user->email = $request->email;
+        $user->phone_number = $request->phone;
+
+        if ($user->save()) {
+            $user->roles()->sync($request->role);
+            $role = $user->roles()->first();
+            $user->update([
+                'user_role_id' => $role->pivot->id ?? null
+            ]);
+
+            $profile = new UserProfile([
+                'address' => $request->street,
+                'city' => $request->city,
+                'country' => $request->country,
+                'postal_code' => $request->postal_code,
+                'business_type_id' => $request->business_type,
+                'role_id' => $request->role
+            ]);
+
+            $user->profile()->save($profile);
+
+            if ($request->role == 3) {
+                $employee_profile = new EmployeeProfile([
+                    'department_id' => $request->department,
+                    'employment_type_id' => $request->employment_type,
+                    'attendance_shift_id' => $request->attendance_shift,
+                    'hired_at' => $request->start_date,
+                    'job_position' => $request->job_position,
+                    'special_notes' => $request->special_notes ?? ''
+                ]);
+
+                $user->employeeProfile()->save($employee_profile);
+            }
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $user,
+        ]);
+    }
+
+    public function disableUser(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer|exists:users,id'
+        ]);
+
+        $user = User::find($request->id);
+        $user->status_id = 2;
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $user
+        ]);
+    }
+
     public function getUsers(Request $request)
     {
-        $users = User::with('roles')->paginate($request->per_page ?? 10);
+        $users = User::with(['businesses', 'roles', 'status', 'profile.businessType', 'employeeProfile'])
+            ->when($request->filter['name'], function ($query) use ($request) {
+                $query->searchFullName($request->filter['name']);
+            })
+            ->when($request->filter['status'], function ($query) use ($request) {
+                $query->where('status_id', $request->filter['status']);
+            })
+            ->when($request->filter['role'], function ($query) use ($request) {
+                $query->whereHas('roles', function ($query) use ($request) {
+                    $query->where('role_id', $request->filter['role']);
+                });
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate($request->per_page ?? 10);
 
         return response()->json([
             'status' => 'success',

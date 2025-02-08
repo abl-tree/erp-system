@@ -27,6 +27,7 @@
         "lodash": "^4.17.21",
         "trie-search": "^2.1.0",
         "vue-input-dropdown": "^0.1.9",
-        "vue-multiselect": "^3.1.0"
+        "vue-multiselect": "^3.1.0",
+        "vue-tailwind-datepicker": "^1.7.3"
     }
 }

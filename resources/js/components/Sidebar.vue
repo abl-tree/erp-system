@@ -27,6 +27,11 @@
                 <UsersIcon class="size-5" />
             </span> User Management
         </router-link>
+        <router-link :to="{ name: 'Profile' }" class="flex items-center px-4 py-4 text-sm hover:bg-secondary hover:text-white rounded-xl">
+            <span class="mr-3">
+                <UserIcon class="size-5" />
+            </span> Profile
+        </router-link>
         <a @click="logoutUser()" class="flex items-center px-4 py-4 text-sm hover:bg-secondary hover:text-white rounded-xl cursor-pointer">
             <span class="mr-3">
                 <ArrowRightStartOnRectangleIcon class="size-5" />
@@ -41,7 +46,7 @@
 </template>
 
 <script setup>
-import { Squares2X2Icon, CalendarDaysIcon, CreditCardIcon, UsersIcon } from '@heroicons/vue/24/solid'
+import { Squares2X2Icon, CalendarDaysIcon, CreditCardIcon, UsersIcon, UserIcon } from '@heroicons/vue/24/solid'
 import { ArrowRightStartOnRectangleIcon } from '@heroicons/vue/24/outline'
 import { useAuthStore } from '@/stores/auth.js'
 import { useRouter } from 'vue-router'

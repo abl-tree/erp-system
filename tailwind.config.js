@@ -1,11 +1,14 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
 
+const colors = require("tailwindcss/colors");
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
     "./resources/**/*.blade.php",
     "./resources/**/*.js",
     "./resources/**/*.vue",
+    "./node_modules/vue-tailwind-datepicker/**/*.js",
   ],
 
   theme: {
@@ -23,6 +26,8 @@ export default {
         secondary: '#1284A3',
         'secondary-600': '#0F6B8B',
         accent: '#001F54',
+        // "vtd-primary": colors.sky, // Light mode Datepicker color
+        // "vtd-secondary": colors.gray, // Dark mode Datepicker color
       },
       borderRadius: {
         'xl': '15px',

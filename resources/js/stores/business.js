@@ -33,6 +33,28 @@ export const useBusinessStore = defineStore('business', {
           throw error
         })
     },
+    async updateUser(payload) {
+      return axios.post('/api/v1/business/user/update', payload)
+        .then((response) => {
+          // this.business = response.data.data
+          return response
+        })
+        .catch((error) => {
+          // this.business = null
+          throw error
+        })
+    },
+    async disableUser(payload) {
+      return axios.post('/api/v1/business/user/disable', payload)
+        .then((response) => {
+          // this.business = response.data.data
+          return response
+        })
+        .catch((error) => {
+          // this.business = null
+          throw error
+        })
+    },
     async getTypes() {
       return axios.get('/api/v1/business/types')
         .then((response) => {

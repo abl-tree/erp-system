@@ -29,6 +29,7 @@ const router = createRouter({
         { path: "/", name: 'Home', component: Home },
         { path: "/user", name: 'User', component: User },
         { path: "/user-management", name: 'UserManagement', component: UserManagement },
+        { path: "/profile", name: 'Profile', component: UserManagement },
         { path: "/confirm-password", name: 'ConfirmPassword', component: ConfirmPassword },
       ]
     },

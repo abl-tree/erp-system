@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Role;
+use App\Models\UserStatus;
 
 class AccountController extends Controller
 {
@@ -15,6 +16,16 @@ class AccountController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $roles
+        ]);
+    }
+
+    public function getStatuses()
+    {
+        $statuses = UserStatus::all();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $statuses
         ]);
     }
 }

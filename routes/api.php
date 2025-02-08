@@ -16,11 +16,24 @@ Route::prefix('v1')
             ->group(function () {
                 Route::get('/me', MeController::class);
             });
+
+        Route::prefix('department')
+            ->group(function () {
+                Route::resource('/', 'DepartmentController');
+            });
+
+        Route::prefix('employment')
+            ->group(function () {
+                Route::get('/types', 'EmploymentController@types');
+                Route::get('/shifts', 'EmploymentController@shifts');
+            });
         
         Route::prefix('business')
             ->group(function () {
                 Route::post('/create', 'BusinessDetailsController@createBusiness');
+                Route::post('/user/update', 'BusinessDetailsController@updateUser');
                 Route::post('/user/create', 'BusinessDetailsController@createUser');
+                Route::post('/user/disable', 'BusinessDetailsController@disableUser');
                 Route::get('/users', 'BusinessDetailsController@getUsers');
                 Route::get('/types', 'BusinessDetailsController@businessTypes');
                 Route::get('/features/{id?}', 'BusinessDetailsController@businessFeatures');
@@ -41,5 +54,6 @@ Route::prefix('v1')
         Route::prefix('account')
             ->group(function () {
                 Route::get('/roles', [AccountController::class, 'getRoles']);
+                Route::get('/status', [AccountController::class, 'getStatuses']);
             });
     });

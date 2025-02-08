@@ -4,20 +4,20 @@
             <div class="flex flex-row text-2xl">
                 <div class="grow font-bold">User Management</div>
                 <div class="flex-none">
-                    <InputDropdown @add="isModalVisible = true" />
+                    <InputDropdown @add="handleAddUserOpen" />
                 </div>
             </div>
             <div class="flex flex-col gap-3">
                 <h2>Search & Filters</h2>
                 <div class="grid grid-cols-2 gap-3 text-black">
                     <div class="basis-1/2">
-                        <Input label="Search" placeholder="Enter name" />
+                        <Input label="Search" placeholder="Enter name" v-model="filterName" />
                     </div>
                     <div class="basis-1/2">
-                        <Select :options="options" label="Select role" v-model="filterRole" />
+                        <Select :options="rolesOptions" label="Select role" v-model="filterRole" />
                     </div>
                     <div class="basis-1/2">
-                        <Select :options="options" label="Select status" v-model="filterStatus" />
+                        <Select :options="statusOptions" label="Select status" v-model="filterStatus" />
                     </div>
                     <div class="basis-1/2">
                         <Select :options="options" label="Select address" v-model="filterAddress" />
@@ -26,55 +26,65 @@
                 <div>
                     <div class="flex flex-row gap-3 justify-end">
                         <button class="bg-gray-50 px-5 py-1 text-gray-500 text-sm rounded-lg font-semibold">Clear All</button>
-                        <button class="bg-secondary px-5 py-1 text-white text-sm rounded-lg font-semibold">Search</button>
+                        <button class="bg-secondary px-5 py-1 text-white text-sm rounded-lg font-semibold" @click="handleFilter">Search</button>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="w-full p-5 border border-gray-300 rounded-2xl">
+        <div class="w-full border border-gray-300 rounded-2xl">
             <table class="table-auto border-collapse w-full text-left">
                 <thead>
                     <tr>
-                        <th class="p-5">Name, ID</th>
-                        <th class="p-5">Role</th>
-                        <th class="p-5">Contact Details</th>
-                        <th class="p-5">Status</th>
+                        <th class="p-5 first:rounded-tl-xl hover:bg-secondary hover:text-white cursor-pointer">Name, ID</th>
+                        <th class="p-5 hover:bg-secondary hover:text-white cursor-pointer">Role</th>
+                        <th class="p-5 hover:bg-secondary hover:text-white cursor-pointer">Contact Details</th>
+                        <th class="p-5 hover:bg-secondary hover:text-white cursor-pointer">Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(user, key) in userList" :key="key" class="hover:bg-gray-200">
+                    <tr v-if="userList.length" v-for="(user, key) in userList" :key="key" class="hover:bg-gray-200">
                         <td class="p-5 first:rounded-l-xl last:rounded-r-xl">{{ user.full_name }}, 123</td>
                         <td class="p-5">{{ user?.roles[0]?.name }}</td>
                         <td class="p-5">{{ user.email }}</td>
-                        <td class="p-5"><span class="success-pill">Active</span></td>
+                        <td class="p-5">
+                            <span v-if="user?.status?.name == 'Active'" class="success-pill"> {{ user?.status?.name }} </span>
+                            <span v-else-if="user?.status?.name == 'Disabled'" class="danger-pill"> {{ user?.status?.name }} </span>
+                        </td>
                         <td class="p-5 first:rounded-l-xl last:rounded-r-xl">
                             <DropdownActions 
-                                :actions="['View', 'Edit', 'Delete']" 
-                                @actionSelected="(action) => handleAction(action, user.id)"
+                                :actions="{'view': 'View', 'edit': 'Edit', 'delete': 'Delete', 'disabled': 'Mark as Disabled'}" 
+                                @actionSelected="(action, index) => handleAction(action, user, index)"
                             />
                         </td>
+                    </tr>
+                    <tr v-else>
+                        <td class="p-5 text-center" colspan="4">No records found</td>
                     </tr>
                 </tbody>
             </table>
         </div>
-        <div class="flex flex-row gap-3 justify-between w-full text-accent">
+        <div class="flex flex-row gap-3 justify-between w-full text-accent px-5">
             <div class="flex flex-row gap-3">
                 <div class="flex flex-row gap-5 items-center">
-                    1-20 of 100
+                    {{ pagination?.from || 0 }}-{{ pagination?.to || 0 }} of {{ pagination?.total || 0 }}
                 </div>
                 <div class="flex flex-row gap-5 items-center">
-                    <ChevronLeftIcon class="size-5" />
-                    <ChevronRightIcon class="size-5" />
+                    <button type="button" :class="{ 'cursor-not-allowed': !pagination?.prev_page_url }" @click="handlePage('prev')" :disabled="!pagination?.prev_page_url">
+                        <ChevronLeftIcon class="size-5" />
+                    </button>
+                    <button type="button" :class="{ 'cursor-not-allowed': !pagination?.next_page_url }" @click="handlePage('next')" :disabled="!pagination?.next_page_url">
+                        <ChevronRightIcon class="size-5" />
+                    </button>
                 </div>
             </div>
             <div class="flex flex-row gap-3 items-center">
                 <span>View:</span>
-                <Select :options="perPage" v-model="selectedLimit" />
+                <Select :options="perPage" v-model="selectedLimit" @change="handlePerPage" />
             </div>
         </div>
         <div class="flex-1 border-black border-s w-px">
             <!-- Modal Component -->
-            <AddUserFormModal :show="isModalVisible" @close="isModalVisible = false" />
+            <AddUserFormModal :show="isModalVisible" @close="handleAddUserClose" />
         </div>
     </div>
 </template>
@@ -89,7 +99,7 @@
     }
 </style>
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, nextTick } from "vue";
 import InputDropdown from '@/components/InputDropdown.vue'
 import AddUserFormModal from '@/components/AddUserForm.vue'
 import Input from '@/components/Input.vue'
@@ -97,45 +107,146 @@ import Select from '@/components/Select.vue'
 import axios from 'axios'
 import { ChevronRightIcon, ChevronLeftIcon, EllipsisVerticalIcon } from '@heroicons/vue/24/solid'
 import DropdownActions from '@/components/DropdownActions.vue'
+import { useAccountStore } from "@/stores/account";
+import { useUserManagementStore } from "@/stores/user-management";
+import { useBusinessStore } from "@/stores/business";
+import paginationConf from "@/config/pagination";
+
+const accountStore = useAccountStore();
+const userManagementStore = useUserManagementStore();
+const businessStore = useBusinessStore();
 
 // Modal visibility state
 const isModalVisible = ref(false);
+const filterName = ref('');
 const filterRole = ref(0);
 const filterStatus = ref(0);
 const filterAddress = ref(0);
-const userList = ref([]);
-const options = [
-    { id: 1, name: 'Admin' },
-    { id: 2, name: 'User' },
-    { id: 3, name: 'Guest' },
-];
-const perPage = [
-    { id: 10, name: '10' },
-    { id: 25, name: '25' },
-    { id: 50, name: '50' },
-    { id: 100, name: '100' },
-    { id: 200, name: '200' },
-];
+const userList = ref(userManagementStore.users);
+const rolesOptions = ref(accountStore.roles);
+const statusOptions = ref(accountStore.status);
+const perPage = paginationConf.PAGE_SIZES;
 const pagination = ref(null);
-const selectedLimit = ref(10);
+const selectedLimit = ref(paginationConf.ITEMS_PER_PAGE);
+const selectedPage = ref(paginationConf.DEFAULT_PAGE);
 
-const handleAction = (action, index) => {
-    console.log(`Row ${index + 1}: ${action} clicked`);
+const getStatusOptions = () => {
+    if (accountStore.statusList.length == 0) {
+        accountStore.getStatus()
+    }
+};
+
+getStatusOptions();
+
+const getRolesOptions = () => {
+    if (accountStore.roles.length == 0) {
+        accountStore.getRoles()
+    }
+};
+
+getRolesOptions();
+
+const handleAction = (action, user, index) => {    
+    console.log('handleAction', action, user, index);
+    
+    if (action == 'disabled') {
+        businessStore.disableUser(user);
+    } else {
+        userManagementStore.setUser(user, action);
+
+        isModalVisible.value = true;
+    }
+};
+
+const handleFilter = () => {
+    selectedPage.value = 1;
+
+    getUsers();
+};
+
+const handleAddUserClose = () => {
+    isModalVisible.value = false
+
+    userManagementStore.setUser({
+        firstname: null,
+        lastname: null,
+        email: null,
+        phone: null,
+        street: null,
+        postal_code: null,
+        country: null,
+        city: null,
+        business_type: null,
+        role: null,
+        job_position: null,
+        department: null,
+        employment_type: null,
+        special_notes: null,
+        start_date: '',
+        attendance_shift: null
+    }, null);
+}
+
+const handleAddUserOpen = () => {
+    isModalVisible.value = true
+
+    userManagementStore.setUser({
+        firstname: null,
+        lastname: null,
+        email: null,
+        phone: null,
+        street: null,
+        postal_code: null,
+        country: null,
+        city: null,
+        business_type: null,
+        role: null,
+        job_position: null,
+        department: null,
+        employment_type: null,
+        special_notes: null,
+        start_date: '',
+        attendance_shift: null
+    }, null);
+};
+
+const handlePerPage = async () => {
+    selectedPage.value = 1;
+
+    await nextTick();
+
+    getUsers();
+};
+
+const handlePage = (direction) => {
+    if (direction === 'next') {
+        selectedPage.value++;
+    } else {
+        selectedPage.value--;
+    }
+
+    if (selectedPage.value < 1) {
+        selectedPage.value = 1;
+    }
+
+    getUsers();
 };
 
 // Methods
 const getUsers = async () => {
-    const req = await axios.get('api/v1/business/users', {
-        params: {
-            'iso2': ''
+    userManagementStore.getUsers(
+        selectedPage.value,
+        selectedLimit.value,
+        {
+            name: filterName.value,
+            role: filterRole.value,
+            status: filterStatus.value,
+            address: filterAddress.value,
         }
-    })
-
-    const results = req.data.data;
-    console.log('Get users', results);
-
-    userList.value = results.data;
-    pagination.value = results;
+    ).then(() => {
+        userList.value = userManagementStore.users;
+        pagination.value = userManagementStore.pagination;
+    });
 }
 
 // Execute Methods

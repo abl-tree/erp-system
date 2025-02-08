@@ -13,17 +13,27 @@
     <div
       v-if="isOpen"
       ref="dropdown"
-      class="z-10 bg-white border border-gray-300 rounded-lg shadow-lg"
+      class="z-10 bg-white rounded-xl shadow-lg w-40"
       :class="dropdownClass"
     >
-      <ul>
+      <ul class="rounded-xl border border-primary">
         <li
-          v-for="(action, index) in actions"
+          v-for="(option, index) in options"
           :key="index"
-          @click="selectAction(action)"
-          class="px-4 py-2 text-black cursor-pointer hover:bg-blue-500 hover:text-white"
+          @click="selectAction(option.key, index)"
+          @mouseover="option.hovered = true"
+          @mouseleave="option.hovered = false"
+          class="px-4 py-2 text-sm text-black border border-primary cursor-pointer first:rounded-t-xl last:rounded-b-xl hover:bg-secondary hover:text-white"
         >
-          {{ action }}
+          <div class="flex flex-row items-center gap-2">
+            <div class="flex-none">
+              <component :is="option.solid" :class="{
+                'text-secondary': !option.hovered,
+                'text-white': option.hovered,
+              }" class="size-4" />
+            </div>
+            <div class="flex-grow">{{ option.value }}</div>
+          </div>
         </li>
       </ul>
     </div>
@@ -32,21 +42,67 @@
 
 <script>
 import { ref, onMounted, onUnmounted, nextTick } from 'vue';
-import { EllipsisVerticalIcon } from '@heroicons/vue/24/solid';
+import { EllipsisVerticalIcon, EyeIcon, PencilSquareIcon, TrashIcon, UserMinusIcon } from '@heroicons/vue/24/solid';
+import { EyeIcon as EyeOutlineIcon, PencilSquareIcon as PencilSquareOutlineIcon } from '@heroicons/vue/24/outline';
 import { createPopper } from '@popperjs/core';
 
 export default {
   name: 'DropdownActions',
   components: {
     EllipsisVerticalIcon,
+    EyeIcon,
+    EyeOutlineIcon,
+    PencilSquareIcon,
+    PencilSquareOutlineIcon,
+    TrashIcon,
+    UserMinusIcon
   },
   props: {
     actions: {
-      type: Array,
+      type: Object,
       required: true,
     },
   },
   emits: ['actionSelected'],
+  data() {
+    return {
+      options: Object.entries(this.actions).map(([key, value]) => {
+        let outline, solid;
+        switch (key) {
+          case 'view':
+              outline = EyeOutlineIcon;
+              solid = EyeIcon;
+            break;
+            
+          case 'edit':
+              outline = PencilSquareOutlineIcon;
+              solid = PencilSquareIcon;
+            break;
+            
+          case 'delete':
+              outline = EyeOutlineIcon;
+              solid = TrashIcon;
+            break;
+
+          case 'disabled':
+              outline = EyeOutlineIcon;
+              solid = UserMinusIcon;
+            break;
+        
+          default:
+            break;
+        }
+
+        return {
+          key: key,
+          value: value,
+          solid: solid, // Use the actual component for the solid icon
+          outline: outline, // Use the actual component for the outline icon
+          hovered: ref(false), // Store the `hovered` state here as a reactive ref
+        }
+      })
+    };
+  },
   setup(props, { emit }) {
     const isOpen = ref(false);
     const trigger = ref(null);
@@ -84,8 +140,8 @@ export default {
       }
     };
 
-    const selectAction = (action) => {
-      emit('actionSelected', action);
+    const selectAction = (action, index) => {      
+      emit('actionSelected', action, index);
       isOpen.value = false; // Close dropdown after selection
       destroyPopper();
     };

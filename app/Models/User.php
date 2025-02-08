@@ -72,6 +72,18 @@ class User extends Authenticatable
         return "{$this->firstname} {$this->lastname}";
     }
 
+    /**
+     * Search users by concatenating firstname and lastname.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param string $search
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeSearchFullName($query, $search)
+    {
+        return $query->whereRaw("to_tsvector(firstname || ' ' || lastname) @@ plainto_tsquery(?)", [$search]);
+    }
+
     public function businesses()
     {
         return $this->hasMany(Business::class, 'user_id', 'id');
@@ -85,5 +97,20 @@ class User extends Authenticatable
     public function activeRole()
     {
         return $this->belongsTo(UserRole::class, 'user_role_id');
+    }
+
+    public function employeeProfile()
+    {
+        return $this->hasOne(EmployeeProfile::class, 'user_id');
+    }
+
+    public function profile()
+    {
+        return $this->hasOne(UserProfile::class, 'user_id');
+    }
+
+    public function status()
+    {
+        return $this->hasOne(UserStatus::class, 'id', 'status_id');
     }
 }

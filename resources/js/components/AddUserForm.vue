@@ -4,10 +4,10 @@
       <div class="modal-content relative w-full flex flex-col">
         <!-- Modal Body -->
         <div class="p-11 flex flex-col gap-5">
-          <div class="text-title">Add New</div>
+          <div class="text-title !text-primary">{{ computedAction ?? "Add New" }} </div>
           <div class="flex flex-row gap-5">
             <div class="flex-1 flex flex-col">
-              <label for="first_name">First Name <span class="text-red-500">*</span></label>
+              <label for="first_name">First Name {{ data.firstname }}<span class="text-red-500">*</span></label>
               <InputValidation :has_error="errors && errors.firstname">
                 {{ errors.firstname }}
                 <template #input :errors="errors.firstname">
@@ -169,9 +169,10 @@
               </div>
             </div>
           </div>
-          <div class="flex flex-row" v-if="enableJobPosition">
+          <template v-if="enableJobPosition">
+          <div class="flex flex-row">
             <div class="flex-1 flex flex-col">
-              <label for="system_role">Job Position <span class="text-red-500">*</span></label>
+              <label for="job_position">Job Position <span class="text-red-500">*</span></label>
               <InputValidation :has_error="errors && errors.job_position">
                 {{ errors.job_position }}
                 <template #input :errors="errors.job_position">
@@ -190,19 +191,75 @@
             </div>
           </div>
           <div class="flex flex-row">
-            <Button @click="confirmAction()">Add User</Button>
+            <div class="flex-1 flex flex-col">
+              <label for="department">Department <span class="text-red-500">*</span></label>
+              <select v-model="data.department" id="department" :class="{'custom-invalid' : errors && errors.department}" class="p-2 block w-full rounded-xl shadow-sm bg-white border border-gray-300 focus:border-secondary focus:ring focus:ring-secondary focus:ring-opacity-50">
+                <option :value="null">Select department</option>
+                <option v-for="(value, key) in departments" :value="value.id">{{ value.name }}</option>
+              </select>
+              <div v-if="errors && errors.department">
+                <span v-for="(error, index) in errors.department" :key="'department-' + index" class="text-red-500 text-xs">{{ error }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-row">
+            <div class="flex-1 flex flex-col">
+              <label for="employment_type">Employment Type <span class="text-red-500">*</span></label>
+              <select v-model="data.employment_type" id="employment_type" :class="{'custom-invalid' : errors && errors.employment_type}" class="p-2 block w-full rounded-xl shadow-sm bg-white border border-gray-300 focus:border-secondary focus:ring focus:ring-secondary focus:ring-opacity-50">
+                <option :value="null">Select employment type</option>
+                <option v-for="(value, key) in employmentTypes" :value="value.id">{{ value.name }}</option>
+              </select>
+              <div v-if="errors && errors.employment_type">
+                <span v-for="(error, index) in errors.employment_type" :key="'employment_type-' + index" class="text-red-500 text-xs">{{ error }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 grid-rows-2 gap-5">
+            <div class="row-span-2 flex flex-col">
+              <label for="special_notes">Special Notes</label>
+              <InputValidation class="grow" :has_error="errors && errors.special_notes">
+                {{ errors.special_notes }}
+                <template #input :errors="errors.special_notes">
+                  <Textarea v-model="data.special_notes"
+                    class="p-2 block mt-1 w-full error h-full"
+                    :class="{ 'custom-invalid': errors && errors.special_notes }"
+                    id="special_notes"
+                    type="text" name="special_notes" placeholder="Enter special notes" />
+                </template>
+                <template #errors>
+                  <div v-if="errors && errors.special_notes">
+                    <span v-for="(error, index) in errors.special_notes" :key="'special_notes-' + index" class="text-red-500 text-xs">{{ error }}</span>
+                  </div>
+                </template>
+              </InputValidation>
+            </div>
+            <div class="flex flex-col">
+              <label for="start_date">Start Date <span class="text-red-500">*</span></label>
+              <VueTailwindDatepicker 
+                class="rounded-xl focus:border-secondary focus:ring focus:ring-secondary focus:ring-opacity-50"
+                v-model="data.start_date" 
+                as-single
+                :formatter="{
+                  date: 'YYYY-MM-DD',
+                  month: 'MMM',
+                }" />
+            </div>
+            <div class="flex flex-col">
+              <label for="attendance_shift">Attendance Shift <span class="text-red-500">*</span></label>
+              <select v-model="data.attendance_shift" id="attendance_shift" :class="{'custom-invalid' : errors && errors.attendance_shift}" class="p-2 block w-full rounded-xl shadow-sm bg-white border border-gray-300 focus:border-secondary focus:ring focus:ring-secondary focus:ring-opacity-50">
+                <option :value="null">Select attendance shift</option>
+                <option v-for="(value, key) in attendanceShifts" :value="value.id">{{ value.name }}</option>
+              </select>
+              <div v-if="errors && errors.attendance_shift">
+                <span v-for="(error, index) in errors.attendance_shift" :key="'attendance_shift-' + index" class="text-red-500 text-xs">{{ error }}</span>
+              </div>
+            </div>
+          </div>
+          </template>
+          <div class="flex flex-row">
+            <Button v-if="!userManagementStore.action || userManagementStore.action == 'Edit'" @click="confirmAction()">{{ userManagementStore.action ?? 'Add'  }} User</Button>
           </div>
         </div>
-
-        <!-- Modal Footer -->
-        <!-- <div class="flex items-center justify-end p-4 border-t border-gray-300">
-          <button @click="closeModal" class="px-4 py-2 text-gray-500 border border-gray-300 rounded-lg hover:bg-gray-100">
-            Cancel
-          </button>
-          <button @click="confirmAction" class="px-4 py-2 ml-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600">
-            Confirm
-          </button>
-        </div> -->
       </div>
     </div>
   </div>
@@ -215,6 +272,10 @@ import InputValidation from "@/components/InputValidation.vue";
 import Select from "@/components/Select.vue";
 import Button from "@/components/Button.vue";
 import { useBusinessStore } from "@/stores/business";
+import Textarea from "@/components/Textarea.vue";
+import VueTailwindDatepicker from 'vue-tailwind-datepicker';
+import { useAccountStore } from "@/stores/account";
+import { useUserManagementStore } from "@/stores/user-management";
 
 // Define the prop to control modal visibility
 defineProps({
@@ -225,11 +286,16 @@ defineProps({
 });
 
 const businessStore = useBusinessStore();
+const accountStore = useAccountStore();
+const userManagementStore = useUserManagementStore();
 
 const countries = ref([]);
 const cities = ref([]);
 const roles = ref([]);
 const businessTypes = ref([]);
+const departments = ref([]);
+const employmentTypes = ref([]);
+const attendanceShifts = ref([]);
 
 const selectedCountry = ref(null);
 const selectedCity = ref(null);
@@ -237,22 +303,27 @@ const selectedRole = ref(null);
 const selectedBusinessType = ref(null);
 
 const data = reactive({
-  firstname: null,
-  lastname: null,
-  email: null,
-  phone: null,
-  street: null,
-  postal_code: null,
-  country: null,
-  city: null,
-  business_type: null,
-  role: selectedRole,
-  job_position: null,
-});
+    firstname: null,
+    lastname: null,
+    email: null,
+    phone: null,
+    street: null,
+    postal_code: null,
+    country: null,
+    city: null,
+    business_type: null,
+    role: null,
+    job_position: null,
+    department: null,
+    employment_type: null,
+    special_notes: null,
+    start_date: '',
+    attendance_shift: null
+  });
 const errors = ref(null);
 
 const enableJobPosition = computed(() => {
-  const role = roles.value.find((role) => role.id === selectedRole.value);
+  const role = roles.value.find((role) => role.id === data.role);
   
   return role?.name.toLowerCase() === 'employee';
 });
@@ -265,8 +336,24 @@ const closeModal = () => {
 };
 
 const confirmAction = () => {
+  if (userManagementStore.action == 'Edit') {
+    updateUser();
+  } else {
+    createUser();
+  }
+};
+
+const createUser = () => {
   businessStore.createUser(data).then(() => {
-    // closeModal();
+    closeModal();
+  }).catch((error) => {
+    errors.value = error.response.data.errors;
+  });
+};
+
+const updateUser = () => {
+  businessStore.updateUser(data).then(() => {
+    closeModal();
   }).catch((error) => {
     errors.value = error.response.data.errors;
   });
@@ -310,19 +397,13 @@ const getCities = async (iso2) => {
 }
 
 const getRoles = async () => {
-    const cacheKey = 'roles';
-    let cachedData = localStorage.getItem(cacheKey);    
-
-    if (cachedData && false) {
-        cachedData = JSON.parse(cachedData);
+    if (accountStore.roles.length == 0) {
+      accountStore.getRoles().then((res) => {
+          roles.value = res.data.data;
+      });
     } else {
-        // If data does not exist in cache, fetch and cache it
-        const results = await axios.get('api/v1/account/roles');
-        cachedData = results.data.data;
-        localStorage.setItem(cacheKey, JSON.stringify(cachedData));
+        roles.value = accountStore.roles;
     }
-    
-    roles.value = cachedData;
 }
 
 getRoles();
@@ -345,8 +426,78 @@ const getBusinessTypes = async () => {
 
 getBusinessTypes();
 
+const getDepartments = async () => {
+    const cacheKey = 'business-types';
+    let cachedData = localStorage.getItem(cacheKey);    
+
+    if (cachedData && false) {
+        cachedData = JSON.parse(cachedData);
+    } else {
+        // If data does not exist in cache, fetch and cache it
+        const results = await axios.get('api/v1/department');
+        
+        cachedData = results.data.data;
+        localStorage.setItem(cacheKey, JSON.stringify(cachedData));
+    }
+    
+    departments.value = cachedData;
+}
+
+getDepartments();
+
+const getEmploymentTypes = async () => {
+    const cacheKey = 'employment-types';
+    let cachedData = localStorage.getItem(cacheKey);    
+
+    if (cachedData && false) {
+        cachedData = JSON.parse(cachedData);
+    } else {
+        // If data does not exist in cache, fetch and cache it
+        const results = await axios.get('api/v1/employment/types');
+        
+        cachedData = results.data.data;
+        localStorage.setItem(cacheKey, JSON.stringify(cachedData));
+    }
+    
+    employmentTypes.value = cachedData;
+}
+
+getEmploymentTypes();
+
+const getAttendanceShifts = async () => {
+    const cacheKey = 'attendance-shifts';
+    let cachedData = localStorage.getItem(cacheKey);    
+
+    if (cachedData && false) {
+        cachedData = JSON.parse(cachedData);
+    } else {
+        // If data does not exist in cache, fetch and cache it
+        const results = await axios.get('api/v1/employment/shifts');
+        
+        cachedData = results.data.data;
+        localStorage.setItem(cacheKey, JSON.stringify(cachedData));
+    }
+    
+    attendanceShifts.value = cachedData;
+}
+
+getAttendanceShifts();
+
+const computedAction = computed(() => {
+  if (userManagementStore.action && userManagementStore.user?.id) return userManagementStore.action + " - #" + userManagementStore.user.id;
+  else return null;
+});
+
 watch(() => data.country, async (newValue, oldValue) => {    
     data.city = null;    
     cities.value = await getCities(newValue);
+
+    if (userManagementStore.user?.city) {
+        data.city = userManagementStore.user.city;
+    }
+});
+
+watch(() => userManagementStore.user, async (newValue, oldValue) => {  
+  Object.assign(data, newValue);
 });
 </script>

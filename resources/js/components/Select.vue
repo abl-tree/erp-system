@@ -35,10 +35,7 @@ export default {
   methods: {
     onChange(event) {
       const value = event.target.value === "null" ? null : event.target.value;
-      this.$emit("update:modelValue", value);
-
-      console.log('Select onchange', value);
-      
+      this.$emit("update:modelValue", value);      
     },
   },
 };
@@ -47,8 +44,6 @@ export default {
 <script setup>
 
 const props = defineProps(['modelValue', 'options', 'label']);
-
-console.log('Select', props);
 
 </script>
 

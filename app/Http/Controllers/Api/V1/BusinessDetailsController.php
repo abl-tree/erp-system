@@ -10,6 +10,7 @@ use App\Models\Business;
 use App\Models\EmployeeProfile;
 use App\Models\User;
 use App\Models\UserProfile;
+use Illuminate\Support\Facades\Password;
 
 class BusinessDetailsController extends Controller
 {
@@ -145,6 +146,10 @@ class BusinessDetailsController extends Controller
 
                 $user->employeeProfile()->save($employee_profile);
             }
+
+            Password::sendResetLink(
+                ['email' => $user->email]
+            );
         }
 
         return response()->json([

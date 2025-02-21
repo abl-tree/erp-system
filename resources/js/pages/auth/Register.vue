@@ -251,7 +251,7 @@ const passwordRequirements = ref({
   specialCharValid: {
     text: "At least 1 special character",
     isValid: false,
-    test: (password) => /[!@#$%^&*]/.test(password),
+    test: (password) => /[<>?,./:";'{}|[\]\\!@#$%^&*()_+]/.test(password),
   },
 });
 

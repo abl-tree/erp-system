@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -25,8 +24,14 @@ class DatabaseSeeder extends Seeder
             BusinessTypeSeeder::class,
             BusinessFeatureSeeder::class,
             BusinessTypeFeatureSeeder::class, // Pivot table seeder
+            JobRolesSeeder::class,
+            DepartmentSeeder::class,
+            EmploymentTypeSeeder::class,
+            AttendanceShiftSeeder::class,
+            RoleSeeder::class,
+            UserStatusSeeder::class,
         ]);
 
-        // $this->call(WorldTableSeeder::class);
+        $this->call(WorldTableSeeder::class);
     }
 }

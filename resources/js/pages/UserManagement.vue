@@ -48,7 +48,7 @@
                         <td class="p-5">{{ user.email }}</td>
                         <td class="p-5">
                             <span v-if="user?.status?.name == 'Active'" class="success-pill"> {{ user?.status?.name }} </span>
-                            <span v-else-if="user?.status?.name == 'Disabled'" class="danger-pill"> {{ user?.status?.name }} </span>
+                            <span v-else-if="user?.status?.name == 'Inactive'" class="danger-pill"> {{ user?.status?.name }} </span>
                         </td>
                         <td class="p-5 first:rounded-l-xl last:rounded-r-xl">
                             <DropdownActions 

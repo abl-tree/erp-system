@@ -77,6 +77,26 @@
               </InputValidation>
             </div>
             <div class="col-span-3">
+              <label class="block font-medium text-sm text-gray-500" for="email">
+                Email <span class="text-red-500">*</span>
+              </label>
+              <InputValidation ref="passwordValidation" :has_error="errors && errors.email">
+                <template #input :errors="errors.email">
+                  <Input v-model="data.email"
+                    class="p-2 block mt-1 w-full error"
+                    :class="{ 'custom-invalid': errors && errors.email }"
+                    id="email"
+                    type="email" name="email" placeholder="Enter email"
+                    @input="validatePassword($event.target.value)" />
+                </template>
+                <template #errors>
+                  <div v-if="errors && errors.email">
+                    <span v-for="(error, index) in errors.email" :key="'email-' + index" class="text-red-500 text-xs">{{ error }}</span>
+                  </div>
+                </template>
+              </InputValidation>
+            </div>
+            <div class="col-span-3">
               <label class="block font-medium text-sm text-gray-500" for="password">
                 Password <span class="text-red-500">*</span>
               </label>
@@ -158,7 +178,7 @@ const passwordRequirements = ref({
   specialCharValid: {
     text: "At least 1 special character",
     isValid: false,
-    test: (password) => /[!@#$%^&*]/.test(password),
+    test: (password) => /[<>?,./:";'{}|[\]\\!@#$%^&*()_+]/.test(password),
   },
 });
 const passwordValidation = ref(null);

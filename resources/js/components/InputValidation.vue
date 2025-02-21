@@ -66,7 +66,7 @@ const passwordRequirements = ref({
   specialCharValid: {
     text: "At least 1 special character",
     isValid: false,
-    test: (password) => /[!@#$%^&*]/.test(password),
+    test: (password) => /[<>?,./:";'{}|[\]\\!@#$%^&*()_+]/.test(password),
   },
 });
 
@@ -83,7 +83,7 @@ const togglePassword = (target, toggle = false) => {
 }
 
 const validatePassword = (value) => {
-  const allValid = Object.values(passwordRequirements.value).every((requirement) => {
+  const allValid = Object.values(passwordRequirements.value).forEach((requirement) => {
     requirement.isValid = requirement.test(value);
     return requirement.isValid;
   });  

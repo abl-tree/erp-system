@@ -71,27 +71,24 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
-  
-  console.log('auth', !to.meta.requiresComplete && authStore.currentUser && !authStore.currentUser.businesses.length && authStore.currentUser.user_role_id != null);
-  
 
   if (to.meta.requiresAuth && !authStore.currentUser) {
     next({ name: "Login" })
-  } else if (to.meta.requiresVerification && authStore.currentUser && !authStore.currentUser.email_verified_at) {
+  } else if (to.meta.requiresAuth && to.meta.requiresVerification && authStore.currentUser && !authStore.currentUser.email_verified_at) {
     next({ name: "VerifyEmail" })
   } else if (to.meta.requiresComplete && authStore.currentUser && !authStore.currentUser.businesses.length && authStore.currentUser.user_role_id == null) {
     next({ name: "BusinessRegistration" })
-  } else if (!to.meta.requiresComplete && authStore.currentUser && !authStore.currentUser.businesses.length && authStore.currentUser.user_role_id != null) {    
-    next({ name: "Home" })
   } else if (!to.meta.requiresComplete && authStore.currentUser && authStore.currentUser.businesses.length) {
     next({ name: "Home" })
   } else if (!to.meta.requiresVerification && authStore.currentUser && authStore.currentUser.email_verified_at) {
     next({ name: "Home" })
   } else if (to.meta.isGuest && authStore.currentUser) {
     next({ name: "Home" })
-  } else {
-    next();
+  } else if (to.meta.requiresVerification && !to.meta.requiresComplete && authStore.currentUser && !authStore.currentUser.businesses.length && authStore.currentUser.user_role_id != null) {    
+    next({ name: "Home" })
   }
+
+  next()
 });
 
 export default router;

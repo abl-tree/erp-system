@@ -13,10 +13,11 @@ class MeController extends Controller
         $user = $request->user();
         $user->load('businesses');
 
+        $resource = new UserResource($user);
+
         return response()->json([
             'status' => 'success',
-            'data' => $user
+            'data' => $resource
         ]);
-        return new UserResource($user);
     }
 }

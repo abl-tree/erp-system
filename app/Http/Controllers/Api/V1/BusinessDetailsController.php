@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use App\Models\BusinessFeatures;
 use App\Models\BusinessType;
 use Illuminate\Http\Request;
@@ -117,6 +118,7 @@ class BusinessDetailsController extends Controller
         ]);
 
         if ($user->save()) {
+            $user->markEmailAsVerified();
             $user->roles()->attach($request->role);
             $role = $user->roles()->first();
             $user->update([
@@ -150,11 +152,18 @@ class BusinessDetailsController extends Controller
             Password::sendResetLink(
                 ['email' => $user->email]
             );
+
+            $user = $user->fresh();
+            $user->load('businesses');
+            $user->load('roles');
+            $user->load('status');
+            $user->load('profile.businessType');
+            $user->load('employeeProfile');
         }
 
         return response()->json([
             'status' => 'success',
-            'data' => $user,
+            'data' => new UserResource($user)
         ]);
     }
 
@@ -244,10 +253,11 @@ class BusinessDetailsController extends Controller
         $user = User::find($request->id);
         $user->status_id = 2;
         $user->save();
+        $user->load('status');
 
         return response()->json([
             'status' => 'success',
-            'data' => $user
+            'data' => new UserResource($user)
         ]);
     }
 
@@ -256,6 +266,9 @@ class BusinessDetailsController extends Controller
         $users = User::with(['businesses', 'roles', 'status', 'profile.businessType', 'employeeProfile'])
             ->when($request->filter['name'], function ($query) use ($request) {
                 $query->searchFullName($request->filter['name']);
+            })
+            ->when($request->filter['address'], function ($query) use ($request) {
+                $query->searchEmail($request->filter['address']);
             })
             ->when($request->filter['status'], function ($query) use ($request) {
                 $query->where('status_id', $request->filter['status']);
@@ -270,7 +283,17 @@ class BusinessDetailsController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $users
+            'data' => UserResource::collection($users),
+            'meta' => [
+                'total' => $users->total(),
+                'current_page' => $users->currentPage(),
+                'per_page' => $users->perPage(),
+                'last_page' => $users->lastPage(),
+                'from' => $users->firstItem(),
+                'to' => $users->lastItem(),
+                'prev_page_url' => $users->previousPageUrl(),
+                'next_page_url' => $users->nextPageUrl(),
+            ]
         ]);
     }
 }

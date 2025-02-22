@@ -370,9 +370,6 @@ export default {
           console.error(error);
           return [];
         })
-
-        console.log('types', data);
-        
       
       if (data.status == 'success') {
         this.business_type_options = data.data;
@@ -387,9 +384,6 @@ export default {
           console.error(error);
           return [];
         })
-
-        console.log('features', data);
-        
       
       if (data.status == 'success') {
         this.business_features_options = data.data;
@@ -398,9 +392,7 @@ export default {
     picked(item) {
       console.log(item)
     },
-    async findCountry(country) {
-      // console.log('find country', country);
-      
+    async findCountry(country) {      
       axios.get('https://countriesnow.space/api/v0.1/countries/states', {
           country: country,
           withCredentials: false,

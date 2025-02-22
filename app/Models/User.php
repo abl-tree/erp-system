@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -29,6 +28,7 @@ class User extends Authenticatable
         'email',
         'password',
         'user_role_id',
+        'status_id',
         'password_updated_at',
     ];
 
@@ -82,6 +82,16 @@ class User extends Authenticatable
     public function scopeSearchFullName($query, $search)
     {
         return $query->whereRaw("to_tsvector(firstname || ' ' || lastname) @@ plainto_tsquery(?)", [$search]);
+    }
+
+    public function scopeSearchAddress($query, $search)
+    {
+        return $query->whereRaw("to_tsvector(address) @@ plainto_tsquery(?)", [$search]);
+    }
+
+    public function scopeSearchEmail($query, $search)
+    {
+        return $query->whereRaw("to_tsvector(email) @@ plainto_tsquery(?)", [$search]);
     }
 
     public function businesses()

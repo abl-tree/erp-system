@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useUserManagementStore } from './user-management'
 
 export const useBusinessStore = defineStore('business', {
   state: () => ({
@@ -45,9 +46,13 @@ export const useBusinessStore = defineStore('business', {
         })
     },
     async disableUser(payload) {
+      const userManagementStore = useUserManagementStore();
+
       return axios.post('/api/v1/business/user/disable', payload)
         .then((response) => {
-          // this.business = response.data.data
+          let user = response.data.data
+          let status = user.status
+          userManagementStore.setDisabled(status, payload.id)
           return response
         })
         .catch((error) => {

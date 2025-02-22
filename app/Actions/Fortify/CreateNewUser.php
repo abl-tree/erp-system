@@ -28,7 +28,7 @@ class CreateNewUser implements CreatesNewUsers
             'password_confirmation' => ['required', 'string', 'same:password'],
         ])->validate();
 
-        return User::create([
+        $user = User::create([
             'firstname' => $input['firstname'],
             'lastname' => $input['lastname'],
             'business_name' => $input['business_name'],
@@ -36,5 +36,8 @@ class CreateNewUser implements CreatesNewUsers
             'email' => $input['email'],
             'password' => Hash::make($input['password']),
         ]);
+        $user->sendEmailVerificationNotification();
+
+        return $user;
     }
 }

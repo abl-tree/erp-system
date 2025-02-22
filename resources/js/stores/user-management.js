@@ -36,8 +36,19 @@ export const useUserManagementStore = defineStore('userManagement', {
       }
       
     },
+    setUsers(users) {
+      this.users = users
+    },
     setEdit(edit) {
       this.edit = edit
+    },
+    setDisabled(status, userid) {
+      const index = this.users.findIndex(user => user.id === userid)
+      
+      this.users[index].status = status      
+    },
+    insertUser(user) {
+      this.users.unshift(user)
     },
     async getUsers(page, limit, filter) {
       return axios.get('api/v1/business/users', {
@@ -49,17 +60,19 @@ export const useUserManagementStore = defineStore('userManagement', {
       })
       .then((response) => {
         let result = response.data.data
+        let meta = response.data.meta        
         
-        this.users = result.data
+        this.users = result
+        // setUsers(result);
         this.pagination = {
-          current_page: result.current_page,
-          last_page: result.last_page,
-          per_page: result.per_page,
-          total: result.total,
-          from: result.from,
-          to: result.to,
-          prev_page_url: result.prev_page_url,
-          next_page_url: result.next_page_url,
+          current_page: meta.current_page,
+          last_page: meta.last_page,
+          per_page: meta.per_page,
+          total: meta.total,
+          from: meta.from,
+          to: meta.to,
+          prev_page_url: meta.prev_page_url,
+          next_page_url: meta.next_page_url,
         }
         return response
       })

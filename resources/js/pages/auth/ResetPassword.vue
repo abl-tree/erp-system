@@ -111,6 +111,7 @@ import { ArrowRightStartOnRectangleIcon } from '@heroicons/vue/24/outline'
 import Badge from '@/components/Badge.vue'
 import Input from '@/components/Input.vue'
 import InputValidation from '@/components/InputValidation.vue'
+import router from '@/router'
 
 export default {
   data: () => {

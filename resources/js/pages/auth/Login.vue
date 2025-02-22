@@ -156,9 +156,6 @@ export default {
     login() {
       this.errors = null
 
-      console.log('data', this.data);
-      
-
       axios.get('/sanctum/csrf-cookie').then(response => {
         axios.post('/login', this.data)
           .then((response) => {

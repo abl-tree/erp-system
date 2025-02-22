@@ -18,7 +18,7 @@ class UserStatusSeeder extends Seeder
         ]);
 
         UserStatus::create([
-            'name' => 'Inactive'
+            'name' => 'Disabled'
         ]);
     }
 }

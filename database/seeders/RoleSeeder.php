@@ -21,14 +21,14 @@ class RoleSeeder extends Seeder
 
         Role::create([
             'id' => 2,
-            'name' => 'User',
-            'hidden' => true,
+            'name' => 'Client',
+            'hidden' => false,
         ]);
 
         Role::create([
             'id' => 3,
             'name' => 'Employee',
-            'hidden' => true,
+            'hidden' => false,
         ]);
     }
 }

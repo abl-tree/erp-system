@@ -344,7 +344,10 @@ const confirmAction = () => {
 };
 
 const createUser = () => {
-  businessStore.createUser(data).then(() => {
+  businessStore.createUser(data).then((res) => {
+    let user = res.data.data;
+
+    userManagementStore.insertUser(user);
     closeModal();
   }).catch((error) => {
     errors.value = error.response.data.errors;

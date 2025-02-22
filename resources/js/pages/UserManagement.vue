@@ -20,7 +20,7 @@
                         <Select :options="statusOptions" label="Select status" v-model="filterStatus" />
                     </div>
                     <div class="basis-1/2">
-                        <Select :options="options" label="Select address" v-model="filterAddress" />
+                        <Input placeholder="Enter email" label="Search" v-model="filterAddress" />
                     </div>
                 </div>
                 <div>
@@ -48,7 +48,7 @@
                         <td class="p-5">{{ user.email }}</td>
                         <td class="p-5">
                             <span v-if="user?.status?.name == 'Active'" class="success-pill"> {{ user?.status?.name }} </span>
-                            <span v-else-if="user?.status?.name == 'Inactive'" class="danger-pill"> {{ user?.status?.name }} </span>
+                            <span v-else-if="user?.status?.name == 'Disabled'" class="danger-pill"> {{ user?.status?.name }} </span>
                         </td>
                         <td class="p-5 first:rounded-l-xl last:rounded-r-xl">
                             <DropdownActions 
@@ -99,7 +99,7 @@
     }
 </style>
 <script setup>
-import { ref, computed, nextTick } from "vue";
+import { ref, computed, nextTick, watch } from "vue";
 import InputDropdown from '@/components/InputDropdown.vue'
 import AddUserFormModal from '@/components/AddUserForm.vue'
 import Input from '@/components/Input.vue'
@@ -121,7 +121,7 @@ const isModalVisible = ref(false);
 const filterName = ref('');
 const filterRole = ref(0);
 const filterStatus = ref(0);
-const filterAddress = ref(0);
+const filterAddress = ref('');
 const userList = ref(userManagementStore.users);
 const rolesOptions = ref(accountStore.roles);
 const statusOptions = ref(accountStore.status);
@@ -146,10 +146,9 @@ const getRolesOptions = () => {
 
 getRolesOptions();
 
-const handleAction = (action, user, index) => {    
-    console.log('handleAction', action, user, index);
-    
+const handleAction = (action, user, index) => {
     if (action == 'disabled') {
+        user.index = index;
         businessStore.disableUser(user);
     } else {
         userManagementStore.setUser(user, action);
@@ -251,4 +250,16 @@ const getUsers = async () => {
 
 // Execute Methods
 getUsers();
+
+watch(() => accountStore.roles, (newRoles) => {
+  rolesOptions.value = newRoles.length ? newRoles : []; // Prevent empty state
+}, { immediate: true });
+
+watch(() => accountStore.status, (newStatus) => {
+  statusOptions.value = newStatus.length ? newStatus : []; // Prevent empty state
+}, { immediate: true });
+
+watch(() => userManagementStore.users, (newUSers) => {    
+  userList.value = newUSers.length ? newUSers : []; // Prevent empty state
+}, { immediate: true });
 </script>

@@ -21,7 +21,7 @@
                     <div class="flex-1 w-1/2 border-r border-gray-300 flex flex-col p-8 gap-5">
                         <div v-for="(option, key) in businessTypeOptions.slice(0, 7)" :key="key">
                             <input
-                                :id="'option' + option.id"
+                                :id="'business-option' + option.id"
                                 :key="option.id"
                                 class="peer hidden"
                                 type="radio"
@@ -29,7 +29,7 @@
                                 :value="option.id"
                                 v-model="data.business_type"
                             />
-                            <label :for="'option' + option.id" class="flex flex-row items-center justify-center gap-2 btn-secondary-transparent peer-checked:bg-secondary peer-checked:text-white py-2 px-5 w-fit">
+                            <label :for="'business-option' + option.id" class="flex flex-row items-center justify-center gap-2 btn-secondary-transparent peer-checked:bg-secondary peer-checked:text-white py-2 px-5 w-fit">
                                 <component :is="option.icon" class="w-4 h-4 flex-none" />
                                 <span class="flex-1">{{ option.name }}</span>
                             </label>
@@ -38,7 +38,7 @@
                     <div class="flex-1 w-1/2 flex flex-col p-8 gap-5">
                         <div v-for="(option, key) in businessTypeOptions.slice(7)" :key="key">
                             <input
-                                :id="'option' + option.id"
+                                :id="'business-option' + option.id"
                                 :key="option.id"
                                 class="peer hidden"
                                 type="radio"
@@ -46,7 +46,7 @@
                                 :value="option.id"
                                 v-model="data.business_type"
                             />
-                            <label :for="'option' + option.id" class="flex flex-row items-center justify-center gap-2 btn-secondary-transparent peer-checked:bg-secondary peer-checked:text-white py-2 px-5 w-fit">
+                            <label :for="'business-option' + option.id" class="flex flex-row items-center justify-center gap-2 btn-secondary-transparent peer-checked:bg-secondary peer-checked:text-white py-2 px-5 w-fit">
                                 <component :is="option.icon" class="w-4 h-4 flex-none" />
                                 <span class="flex-1">{{ option.name }}</span>
                             </label>
@@ -86,8 +86,8 @@
                                 {{ jobRole.name }}
                                 </div>
                                 <div class="flex-none flex flex-row gap-5 items-center">
-                                    <input type="checkbox" class="hidden" v-model="data.job_roles" :value="jobRole" :id="'item' + jobRole.id">
-                                    <label :for="'item' + jobRole.id" class="rounded-xl bg-gray-400 px-8 py-1 text-white btn-secondary-transparent">Add</label>
+                                    <input type="checkbox" class="hidden" v-model="data.job_roles" :value="jobRole" :id="'job-role-item' + jobRole.id">
+                                    <label :for="'job-role-item' + jobRole.id" class="rounded-xl bg-gray-400 px-8 py-1 text-white btn-secondary-transparent">Add</label>
                                     <ChevronDownIcon  class="size-5 text-secondary" />
                                 </div>
                             </div>
@@ -189,8 +189,8 @@
                             <div class="flex flex-row">
                                 <div class="flex-grow flex items-center font-bold">{{ feature.name }}</div>
                                 <div class="flex-none flex flex-row gap-5 items-center">
-                                    <input type="checkbox" class="hidden" v-model="data.features" :value="feature" :id="'item' + feature.id">
-                                    <label :for="'item' + feature.id" class="rounded-xl bg-gray-400 px-8 py-1 text-white btn-secondary-transparent">Add</label>
+                                    <input type="checkbox" class="hidden" v-model="data.features" :value="feature" :id="'feature-item' + feature.id">
+                                    <label :for="'feature-item' + feature.id" class="rounded-xl bg-gray-400 px-8 py-1 text-white btn-secondary-transparent">Add</label>
                                     <ChevronDownIcon  class="size-5 text-secondary" />
                                 </div>
                             </div>
@@ -342,9 +342,6 @@ const getJobRoles = async () => {
         cachedData = results.data.data;
         localStorage.setItem(cacheKey, JSON.stringify(cachedData));
     }
-
-    console.log('jobRoles', cachedData);
-    
     
     jobRoles.value = cachedData;
 }
@@ -386,11 +383,6 @@ const getBusinessTypes = async () => {
         ...item,
         icon: iconMap[item.name] || null, // Assign icon if exists, otherwise null
     }));
-
-    console.log(cachedData);
-    
-
-    // businessFeatures.value = cachedData;
 
     return cachedData
 }
@@ -466,11 +458,6 @@ watch(countrySearch, (newValue, oldValue) => {
             item.name.toLowerCase().includes(newValue.toLowerCase())
         );
     }
-});
-
-watch(data.job_roles, async (newValue, oldValue) => {
-    console.log(newValue, oldValue);
-    
 });
     
 </script>

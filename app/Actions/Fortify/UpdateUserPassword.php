@@ -23,6 +23,7 @@ class UpdateUserPassword implements UpdatesUserPasswords
             'password' => $this->passwordRules(),
         ], [
             'current_password.current_password' => __('The provided password does not match your current password.'),
+            'password.regex' => 'Password must contain at least one uppercase letter, one number, and one special character.',
         ])->validateWithBag('updatePassword');
 
         $user->forceFill([

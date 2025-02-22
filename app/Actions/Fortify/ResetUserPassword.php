@@ -20,6 +20,8 @@ class ResetUserPassword implements ResetsUserPasswords
     {
         Validator::make($input, [
             'password' => $this->passwordRules(),
+        ], [
+            'password.regex' => 'Password must contain at least one uppercase letter, one number, and one special character.',
         ])->validate();
 
         $user->forceFill([

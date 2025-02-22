@@ -26,6 +26,8 @@ class CreateNewUser implements CreatesNewUsers
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => $this->passwordRules(),
             'password_confirmation' => ['required', 'string', 'same:password'],
+        ], [
+            'password.regex' => 'Password must contain at least one uppercase letter, one number, and one special character.',
         ])->validate();
 
         $user = User::create([

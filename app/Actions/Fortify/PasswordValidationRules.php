@@ -20,7 +20,7 @@ trait PasswordValidationRules
             'confirmed',
             'regex:/[A-Z]/', // At least one uppercase letter
             'regex:/\d/', // At least one number
-            'regex:/[<>?,./:";{}|[\]\\!@#$%^&*()_+]/', // At least one special character
+            'regex:/[<>?,.\/:";{}|[\]\\!@#$%^&*()_+]/', // At least one special character
         ];
     }
 }

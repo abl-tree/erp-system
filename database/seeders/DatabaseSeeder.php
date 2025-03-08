@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
             EmploymentTypeSeeder::class,
             AttendanceShiftSeeder::class,
             RoleSeeder::class,
+            SubRoleSeeder::class,
             UserStatusSeeder::class,
         ]);
 

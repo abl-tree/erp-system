@@ -54,6 +54,7 @@ Route::prefix('v1')
         Route::prefix('account')
             ->group(function () {
                 Route::get('/roles', [AccountController::class, 'getRoles']);
+                Route::get('/roles/{id}', [AccountController::class, 'getSubRoles']);
                 Route::get('/status', [AccountController::class, 'getStatuses']);
             });
     });

@@ -4,6 +4,7 @@ export const useAccountStore = defineStore('account', {
   state: () => ({
     status: [],
     roles: [],
+    subRoles: [],
   }),
   actions: {
     set_user(status) {
@@ -28,6 +29,17 @@ export const useAccountStore = defineStore('account', {
         })
         .catch((error) => {
           this.roles = []
+          throw error
+        })
+    },
+    async getSubRoles(id) {
+      return axios.get('/api/v1/account/roles/' + id)
+        .then((response) => {          
+          this.subRoles = response.data.data
+          return response
+        })
+        .catch((error) => {
+          this.subRoles = []
           throw error
         })
     },

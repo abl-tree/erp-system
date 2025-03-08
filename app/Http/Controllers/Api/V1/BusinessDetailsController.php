@@ -11,6 +11,7 @@ use App\Models\Business;
 use App\Models\EmployeeProfile;
 use App\Models\User;
 use App\Models\UserProfile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Password;
 
 class BusinessDetailsController extends Controller
@@ -58,17 +59,30 @@ class BusinessDetailsController extends Controller
             'features.*' => 'integer'
         ]);
 
-        $business = new Business([
-            'business_type_id' => $request->business_type,
-            'custom_url' => $request->custom_url,
-            'country' => $request->country,
-            'state' => $request->state,
-            'city' => $request->city
-        ]);
+        try {
+            DB::beginTransaction();
 
-        $request->user()->businesses()->save($business);
+            $business = new Business([
+                'business_type_id' => $request->business_type,
+                'custom_url' => $request->custom_url,
+                'country' => $request->country,
+                'state' => $request->state,
+                'city' => $request->city
+            ]);
+    
+            $request->user()->businesses()->save($business);
+    
+            // $business->features()->sync($request->features);
 
-        // $business->features()->sync($request->features);
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => $th->getMessage()
+            ], 500);
+        }
 
         return response()->json([
             'status' => 'success',
@@ -93,6 +107,7 @@ class BusinessDetailsController extends Controller
 
         if ($request->role == 3) {
             $request->validate([
+                'sub_role' => 'required_if:role,3',
                 'job_position' => 'required_if:role,3',
                 'department' => 'required_if:role,3|exists:departments,id',
                 'employment_type' => 'required_if:role,3|exists:employment_types,id',
@@ -100,6 +115,7 @@ class BusinessDetailsController extends Controller
                 'attendance_shift' => 'required_if:role,3|exists:attendance_shifts,id',
                 'special_notes' => 'nullable|string'
             ], [
+                'sub_role.required_if' => 'The sub role field is required.',
                 'job_position.required_if' => 'The job position field is required.',
                 'department.required_if' => 'The department field is required.',
                 'employment_type.required_if' => 'The employment type field is required.',
@@ -108,57 +124,72 @@ class BusinessDetailsController extends Controller
             ]);
         }
 
-        $user = new User([
-            'firstname' => $request->firstname,
-            'lastname' => $request->lastname,
-            'email' => $request->email,
-            'phone_number' => $request->phone,
-            'business_name' => '',
-            'password' => bcrypt('password')
-        ]);
+        try {
+            DB::beginTransaction();
 
-        if ($user->save()) {
-            $user->markEmailAsVerified();
-            $user->roles()->attach($request->role);
-            $role = $user->roles()->first();
-            $user->update([
-                'user_role_id' => $role->pivot->id ?? null
+            $user = new User([
+                'firstname' => $request->firstname,
+                'lastname' => $request->lastname,
+                'email' => $request->email,
+                'phone_number' => $request->phone,
+                'business_name' => '',
+                'password' => bcrypt('password')
             ]);
-
-            $profile = new UserProfile([
-                'address' => $request->street,
-                'city' => $request->city,
-                'country' => $request->country,
-                'postal_code' => $request->postal_code,
-                'business_type_id' => $request->business_type,
-                'role_id' => $request->role
-            ]);
-
-            $user->profile()->save($profile);
-
-            if ($request->role == 3) {
-                $employee_profile = new EmployeeProfile([
-                    'department_id' => $request->department,
-                    'employment_type_id' => $request->employment_type,
-                    'attendance_shift_id' => $request->attendance_shift,
-                    'hired_at' => $request->start_date,
-                    'job_position' => $request->job_position,
-                    'special_notes' => $request->special_notes ?? ''
+    
+            if ($user->save()) {
+                $user->markEmailAsVerified();
+                $user->roles()->attach($request->role, [
+                    'sub_role_id' => $request->sub_role ?? null
                 ]);
-
-                $user->employeeProfile()->save($employee_profile);
+                $role = $user->roles()->first();
+                $user->update([
+                    'user_role_id' => $role->pivot->id ?? null
+                ]);
+    
+                $profile = new UserProfile([
+                    'address' => $request->street,
+                    'city' => $request->city,
+                    'country' => $request->country,
+                    'postal_code' => $request->postal_code,
+                    'business_type_id' => $request->business_type,
+                    'role_id' => $request->role
+                ]);
+    
+                $user->profile()->save($profile);
+    
+                if ($request->role == 3) {
+                    $employee_profile = new EmployeeProfile([
+                        'department_id' => $request->department,
+                        'employment_type_id' => $request->employment_type,
+                        'attendance_shift_id' => $request->attendance_shift,
+                        'hired_at' => $request->start_date,
+                        'job_position' => $request->job_position,
+                        'special_notes' => $request->special_notes ?? ''
+                    ]);
+    
+                    $user->employeeProfile()->save($employee_profile);
+                }
+    
+                Password::sendResetLink(
+                    ['email' => $user->email]
+                );
+    
+                $user = $user->fresh();
+                $user->load('businesses');
+                $user->load('roles');
+                $user->load('status');
+                $user->load('profile.businessType');
+                $user->load('employeeProfile');
             }
 
-            Password::sendResetLink(
-                ['email' => $user->email]
-            );
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
 
-            $user = $user->fresh();
-            $user->load('businesses');
-            $user->load('roles');
-            $user->load('status');
-            $user->load('profile.businessType');
-            $user->load('employeeProfile');
+            return response()->json([
+                'status' => 'error',
+                'message' => $th->getMessage()
+            ], 500);
         }
 
         return response()->json([
@@ -200,42 +231,55 @@ class BusinessDetailsController extends Controller
             ]);
         }
 
-        $user = User::find($request->id);
-        $user->firstname = $request->firstname;
-        $user->lastname = $request->lastname;
-        $user->email = $request->email;
-        $user->phone_number = $request->phone;
-
-        if ($user->save()) {
-            $user->roles()->sync($request->role);
-            $role = $user->roles()->first();
-            $user->update([
-                'user_role_id' => $role->pivot->id ?? null
-            ]);
-
-            $profile = new UserProfile([
-                'address' => $request->street,
-                'city' => $request->city,
-                'country' => $request->country,
-                'postal_code' => $request->postal_code,
-                'business_type_id' => $request->business_type,
-                'role_id' => $request->role
-            ]);
-
-            $user->profile()->save($profile);
-
-            if ($request->role == 3) {
-                $employee_profile = new EmployeeProfile([
-                    'department_id' => $request->department,
-                    'employment_type_id' => $request->employment_type,
-                    'attendance_shift_id' => $request->attendance_shift,
-                    'hired_at' => $request->start_date,
-                    'job_position' => $request->job_position,
-                    'special_notes' => $request->special_notes ?? ''
+        try {
+            DB::beginTransaction();
+    
+            $user = User::find($request->id);
+            $user->firstname = $request->firstname;
+            $user->lastname = $request->lastname;
+            $user->email = $request->email;
+            $user->phone_number = $request->phone;
+    
+            if ($user->save()) {
+                $user->roles()->sync($request->role);
+                $role = $user->roles()->first();
+                $user->update([
+                    'user_role_id' => $role->pivot->id ?? null
                 ]);
-
-                $user->employeeProfile()->save($employee_profile);
+    
+                $profile = new UserProfile([
+                    'address' => $request->street,
+                    'city' => $request->city,
+                    'country' => $request->country,
+                    'postal_code' => $request->postal_code,
+                    'business_type_id' => $request->business_type,
+                    'role_id' => $request->role
+                ]);
+    
+                $user->profile()->save($profile);
+    
+                if ($request->role == 3) {
+                    $employee_profile = new EmployeeProfile([
+                        'department_id' => $request->department,
+                        'employment_type_id' => $request->employment_type,
+                        'attendance_shift_id' => $request->attendance_shift,
+                        'hired_at' => $request->start_date,
+                        'job_position' => $request->job_position,
+                        'special_notes' => $request->special_notes ?? ''
+                    ]);
+    
+                    $user->employeeProfile()->save($employee_profile);
+                }
             }
+
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => $th->getMessage()
+            ], 500);
         }
 
         return response()->json([
@@ -263,6 +307,8 @@ class BusinessDetailsController extends Controller
 
     public function getUsers(Request $request)
     {
+        $auth = $request->user();
+        $business = $auth->businesses()->first();
         $users = User::with(['businesses', 'roles', 'status', 'profile.businessType', 'employeeProfile'])
             ->when($request->filter['name'], function ($query) use ($request) {
                 $query->searchFullName($request->filter['name']);
@@ -277,6 +323,9 @@ class BusinessDetailsController extends Controller
                 $query->whereHas('roles', function ($query) use ($request) {
                     $query->where('role_id', $request->filter['role']);
                 });
+            })
+            ->whereHas('profile', function ($query) use ($business) {
+                $query->where('business_type_id', $business->id);
             })
             ->orderBy('created_at', 'desc')
             ->paginate($request->per_page ?? 10);
@@ -293,7 +342,8 @@ class BusinessDetailsController extends Controller
                 'to' => $users->lastItem(),
                 'prev_page_url' => $users->previousPageUrl(),
                 'next_page_url' => $users->nextPageUrl(),
-            ]
+            ],
+            'test' => $business
         ]);
     }
 }

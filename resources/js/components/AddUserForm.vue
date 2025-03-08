@@ -157,12 +157,22 @@
               </div>
             </div>
           </div>
-          <div class="flex flex-row">
+          <div class="flex flex-row gap-5">
             <div class="flex-1 flex flex-col">
               <label for="system_role">System Role <span class="text-red-500">*</span></label>
               <select v-model="data.role" id="system_role" :class="{'custom-invalid' : errors && errors.role}" class="p-2 block w-full rounded-xl shadow-sm bg-white border border-gray-300 focus:border-secondary focus:ring focus:ring-secondary focus:ring-opacity-50">
                 <option :value="null">Select system role</option>
                 <option v-for="(role, key) in roles" :value="role.id">{{ role.name }}</option>
+              </select>
+              <div v-if="errors && errors.role">
+                <span v-for="(error, index) in errors.role" :key="'role-' + index" class="text-red-500 text-xs">{{ error }}</span>
+              </div>
+            </div>
+            <div v-if="subRoles.length" class="flex-1 flex flex-col">
+              <label for="system_sub_role">Sub Role <span class="text-red-500">*</span></label>
+              <select v-model="data.sub_role" id="system_sub_role" :class="{'custom-invalid' : errors && errors.role}" class="p-2 block w-full rounded-xl shadow-sm bg-white border border-gray-300 focus:border-secondary focus:ring focus:ring-secondary focus:ring-opacity-50">
+                <option :value="null">Select system sub role</option>
+                <option v-for="(role, key) in subRoles" :value="role.id">{{ role.name }}</option>
               </select>
               <div v-if="errors && errors.role">
                 <span v-for="(error, index) in errors.role" :key="'role-' + index" class="text-red-500 text-xs">{{ error }}</span>
@@ -292,6 +302,7 @@ const userManagementStore = useUserManagementStore();
 const countries = ref([]);
 const cities = ref([]);
 const roles = ref([]);
+const subRoles = ref([]);
 const businessTypes = ref([]);
 const departments = ref([]);
 const employmentTypes = ref([]);
@@ -313,6 +324,7 @@ const data = reactive({
     city: null,
     business_type: null,
     role: null,
+    sub_role: null,
     job_position: null,
     department: null,
     employment_type: null,
@@ -498,6 +510,16 @@ watch(() => data.country, async (newValue, oldValue) => {
     if (userManagementStore.user?.city) {
         data.city = userManagementStore.user.city;
     }
+});
+
+watch(() => data.role, async (newValue, oldValue) => {
+  data.sub_role = null;
+
+  subRoles.value = []
+
+  accountStore.getSubRoles(newValue).then((res) => {
+    subRoles.value = res.data.data;    
+  });
 });
 
 watch(() => userManagementStore.user, async (newValue, oldValue) => {  

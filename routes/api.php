@@ -34,6 +34,7 @@ Route::prefix('v1')
                 Route::post('/user/update', 'BusinessDetailsController@updateUser');
                 Route::post('/user/create', 'BusinessDetailsController@createUser');
                 Route::post('/user/disable', 'BusinessDetailsController@disableUser');
+                Route::post('/user/enable', 'BusinessDetailsController@enableUser');
                 Route::get('/users', 'BusinessDetailsController@getUsers');
                 Route::get('/types', 'BusinessDetailsController@businessTypes');
                 Route::get('/features/{id?}', 'BusinessDetailsController@businessFeatures');

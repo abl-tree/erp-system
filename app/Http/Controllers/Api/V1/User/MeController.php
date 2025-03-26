@@ -12,6 +12,7 @@ class MeController extends Controller
     {
         $user = $request->user();
         $user->load('businesses');
+        $user->load('roles');
 
         $resource = new UserResource($user);
 

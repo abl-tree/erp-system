@@ -42,7 +42,7 @@ export const useUserManagementStore = defineStore('userManagement', {
     setEdit(edit) {
       this.edit = edit
     },
-    setDisabled(status, userid) {
+    setStatus(status, userid) {
       const index = this.users.findIndex(user => user.id === userid)
       
       this.users[index].status = status      

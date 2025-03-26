@@ -14,6 +14,7 @@ class UserProfile extends Model
         'postal_code',
         'country',
         'city',
+        'organization_id',
     ];
 
     public function businessType()

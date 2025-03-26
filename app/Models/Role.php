@@ -10,4 +10,9 @@ class Role extends Model
     {
         return ucfirst($value);
     }
+
+    public function subRole()
+    {
+        return $this->hasMany(SubRole::class);
+    }
 }

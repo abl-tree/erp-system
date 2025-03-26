@@ -7,7 +7,7 @@
           <div class="text-title !text-primary">{{ computedAction ?? "Add New" }} </div>
           <div class="flex flex-row gap-5">
             <div class="flex-1 flex flex-col">
-              <label for="first_name">First Name {{ data.firstname }}<span class="text-red-500">*</span></label>
+              <label for="first_name">First Name <span class="text-red-500">*</span></label>
               <InputValidation :has_error="errors && errors.firstname">
                 {{ errors.firstname }}
                 <template #input :errors="errors.firstname">

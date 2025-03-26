@@ -2,11 +2,10 @@
 
 namespace App\Http\Resources;
 
-use App\Models\SubRole;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class RoleResource extends JsonResource
+class SubRoleResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -18,8 +17,6 @@ class RoleResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'sub_role' => SubRole::find($this->pivot->sub_role_id),
-            'pivot' => $this->pivot,
         ];
     }
 }

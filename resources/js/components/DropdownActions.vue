@@ -42,7 +42,7 @@
 
 <script>
 import { ref, onMounted, onUnmounted, nextTick } from 'vue';
-import { EllipsisVerticalIcon, EyeIcon, PencilSquareIcon, TrashIcon, UserMinusIcon } from '@heroicons/vue/24/solid';
+import { EllipsisVerticalIcon, EyeIcon, PencilSquareIcon, TrashIcon, UserMinusIcon, UserPlusIcon } from '@heroicons/vue/24/solid';
 import { EyeIcon as EyeOutlineIcon, PencilSquareIcon as PencilSquareOutlineIcon } from '@heroicons/vue/24/outline';
 import { createPopper } from '@popperjs/core';
 
@@ -55,7 +55,8 @@ export default {
     PencilSquareIcon,
     PencilSquareOutlineIcon,
     TrashIcon,
-    UserMinusIcon
+    UserMinusIcon,
+    UserPlusIcon
   },
   props: {
     actions: {
@@ -87,6 +88,11 @@ export default {
           case 'disabled':
               outline = EyeOutlineIcon;
               solid = UserMinusIcon;
+            break;
+
+          case 'enable':
+              outline = EyeOutlineIcon;
+              solid = UserPlusIcon;
             break;
         
           default:

@@ -3,6 +3,8 @@
 namespace App\Actions\Fortify;
 
 use App\Models\User;
+use App\Models\UserProfile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
@@ -38,6 +40,9 @@ class CreateNewUser implements CreatesNewUsers
             'email' => $input['email'],
             'password' => Hash::make($input['password']),
         ]);
+    
+        $user->roles()->attach(3, ['sub_role_id' => 1]);
+
         $user->sendEmailVerificationNotification();
 
         return $user;

@@ -49,7 +49,7 @@ class BusinessDetailsController extends Controller
     {
         $request->validate([
             'business_type' => 'required|numeric',
-            'custom_url' => 'nullable|string',
+            'custom_url' => 'required|string',
             'country' => 'required|string',
             'state' => 'required|string',
             'job_roles' => 'required_without:custom_job_roles|array',
@@ -70,7 +70,10 @@ class BusinessDetailsController extends Controller
                 'city' => $request->city
             ]);
     
-            $request->user()->businesses()->save($business);
+            $business = $request->user()->businesses()->save($business);
+            $request->user()->profile()->update([
+                'organization_id' => $business->id
+            ]);
     
             // $business->features()->sync($request->features);
 
@@ -92,6 +95,8 @@ class BusinessDetailsController extends Controller
 
     public function createUser(Request $request)
     {
+        $auth = $request->user();
+
         $request->validate([
             'firstname' => 'required|string',
             'lastname' => 'required|string',
@@ -125,6 +130,8 @@ class BusinessDetailsController extends Controller
         }
 
         try {
+            $business = $auth->businesses()->first();
+
             DB::beginTransaction();
 
             $user = new User([
@@ -152,7 +159,8 @@ class BusinessDetailsController extends Controller
                     'country' => $request->country,
                     'postal_code' => $request->postal_code,
                     'business_type_id' => $request->business_type,
-                    'role_id' => $request->role
+                    'role_id' => $request->role,
+                    'organization_id' => $business->id
                 ]);
     
                 $user->profile()->save($profile);
@@ -183,7 +191,7 @@ class BusinessDetailsController extends Controller
             }
 
             DB::commit();
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             DB::rollBack();
 
             return response()->json([
@@ -305,11 +313,31 @@ class BusinessDetailsController extends Controller
         ]);
     }
 
+    public function enableUser(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer|exists:users,id'
+        ]);
+
+        $user = User::find($request->id);
+        $user->status_id = 1;
+        $user->save();
+        $user->load('status');
+
+        return response()->json([
+            'status' => 'success',
+            'data' => new UserResource($user)
+        ]);
+    }
+
     public function getUsers(Request $request)
     {
         $auth = $request->user();
         $business = $auth->businesses()->first();
-        $users = User::with(['businesses', 'roles', 'status', 'profile.businessType', 'employeeProfile'])
+        $profile = $auth->profile()->first();
+
+        $users = User::with(['businesses', 'roles', 'subRoles', 'status', 'profile.businessType', 'employeeProfile'])
+            ->whereNot('id', $auth->id)
             ->when($request->filter['name'], function ($query) use ($request) {
                 $query->searchFullName($request->filter['name']);
             })
@@ -324,8 +352,14 @@ class BusinessDetailsController extends Controller
                     $query->where('role_id', $request->filter['role']);
                 });
             })
-            ->whereHas('profile', function ($query) use ($business) {
-                $query->where('business_type_id', $business->id);
+            ->whereHas('profile', function ($query) use ($business, $profile) {
+                $query->where(function ($q) use ($business, $profile) {
+                    if ($business) {
+                        $q->where('organization_id', $business->id);
+                    } elseif ($profile) {
+                        $q->orWhere('organization_id', $profile->organization_id);
+                    }
+                });
             })
             ->orderBy('created_at', 'desc')
             ->paginate($request->per_page ?? 10);
@@ -343,7 +377,7 @@ class BusinessDetailsController extends Controller
                 'prev_page_url' => $users->previousPageUrl(),
                 'next_page_url' => $users->nextPageUrl(),
             ],
-            'test' => $business
+            'test' => $users
         ]);
     }
 }

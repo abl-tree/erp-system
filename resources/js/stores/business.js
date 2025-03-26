@@ -52,7 +52,22 @@ export const useBusinessStore = defineStore('business', {
         .then((response) => {
           let user = response.data.data
           let status = user.status
-          userManagementStore.setDisabled(status, payload.id)
+          userManagementStore.setStatus(status, payload.id)
+          return response
+        })
+        .catch((error) => {
+          // this.business = null
+          throw error
+        })
+    },
+    async enableUser(payload) {
+      const userManagementStore = useUserManagementStore();
+
+      return axios.post('/api/v1/business/user/enable', payload)
+        .then((response) => {
+          let user = response.data.data
+          let status = user.status
+          userManagementStore.setStatus(status, payload.id)
           return response
         })
         .catch((error) => {

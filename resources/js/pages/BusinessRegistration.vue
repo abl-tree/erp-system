@@ -208,9 +208,10 @@
                 <div class="text-accent text-xl font-medium">Customize</div>
                 <div>Make your custom URL for your business.</div>
                 <div class="flex-grow w-full flex flex-col gap-5">
-                    <div class="flex-none w-full px-8 py-4 rounded-xl bg-white border border-gray-300">
+                    <div :class="{'border-red-500' : errors && errors.custom_url}" class="flex-none w-full px-8 py-4 rounded-xl bg-white border border-gray-300">
                         <input v-model="data.custom_url" class="w-full" name="custom_url" type="text" placeholder="enterpriseopt.com/business.name" />
                     </div>
+                    <span v-if="errors && errors.custom_url" v-for="error in errors.custom_url" class="text-xs text-red-500">{{ error }}</span>
                     <div class="flex-none w-full">
                         <button class="bg-secondary w-full p-4 text-white rounded-xl font-semibold" @click="handleSubmit">Finish</button>
                     </div>

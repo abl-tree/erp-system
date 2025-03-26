@@ -12,12 +12,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        // User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        $this->call(WorldTableSeeder::class);
 
         // Run individual seeders
         $this->call([
@@ -32,7 +27,5 @@ class DatabaseSeeder extends Seeder
             SubRoleSeeder::class,
             UserStatusSeeder::class,
         ]);
-
-        $this->call(WorldTableSeeder::class);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Events\CreatingUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -67,6 +68,15 @@ class User extends Authenticatable
         ];
     }
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            event(new CreatingUser($user));
+        });
+    }
+
     public function getFullNameAttribute(): string
     {
         return "{$this->firstname} {$this->lastname}";
@@ -101,7 +111,14 @@ class User extends Authenticatable
 
     public function roles()
     {
-        return $this->belongsToMany(Role::class, 'user_roles', 'user_id', 'role_id')->withPivot('id');
+        return $this->belongsToMany(Role::class, 'user_roles', 'user_id', 'role_id')
+                    ->withPivot('id', 'sub_role_id');
+    }
+
+    public function subRoles()
+    {
+        return $this->belongsToMany(SubRole::class, 'user_roles', 'user_id', 'sub_role_id')
+                    ->withPivot('id');
     }
 
     public function activeRole()
